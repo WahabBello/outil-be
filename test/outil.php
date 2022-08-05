@@ -53,6 +53,11 @@
             }
         }
 
+        function selectionMachine(choix) {
+            machineChoisie = document.getElementById('machineChoisie');
+            machineChoisie.textContent = choix;
+        }
+
     </script>
 </head>
 
@@ -235,7 +240,7 @@
 
         <!-- table de choix -->
         <div id="select-9" class="champ_outil">
-            <label for="select-9-label"> JE SELECTIONNE LA MACHINE ?</label><select id="select-9" name="select-9" data-placeholder="" tabindex="0">
+            <label for="select-9-label"> JE SELECTIONNE LA MACHINE ?</label><select id="select-9" name="select-9" data-placeholder="" tabindex="0" onchange="selectionMachine(this.value)">
                 <option value="choix-1">FI-GGV-VGV</option>
                 <option value="choix-2">CS-GGV-VGV</option>
             </select>
@@ -262,7 +267,7 @@
         </div>
         <div class="champ_outil">
             <div>
-                <h4><a href=""><span> Le produit choisi</span></a></h4>
+                <h4><a href=""><span id="machineChoisie"> </span></a></h4>
             </div>
         </div>
         <!-- Je choisis mon plan -->

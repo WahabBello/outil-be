@@ -69,6 +69,7 @@ function references_machines()
 // print_r(references_machines());
 // echo "<pre>";
 ?>
+<!-- <pre> <?= var_dump(references_machines()) ?> </pre> -->
 
 <main id="site-content">
 
@@ -82,7 +83,7 @@ function references_machines()
 					</div>
 					<div id="select-1" class="champ_outil">
 						<label for="select-1-label">QUEL EST LE TYPE D'ETABLISSEMENT ?</label><select id="select-1" name="typeDetablissement" data-placeholder="" onchange="affichageElement(this.value)">
-							<option value="" selected="selected"></option>
+							<option value=""></option>
 							<option  <?= (isset($_POST['typeDetablissement']) && $_POST['typeDetablissement'] === 'HOPITAL-PATIENT') ? 'selected' : ''; ?> id="HOPITAL-PATIENT" value="HOPITAL-PATIENT"> HOPITAL PATIENT </option>
 							<option  <?= (isset($_POST['typeDetablissement']) && $_POST['typeDetablissement'] === 'HOPITAL-SELF') ? 'selected' : ''; ?> id="HOPITAL-SELF" value="HOPITAL-SELF"> HOPITAL SELF </option>
 							<option  <?= (isset($_POST['typeDetablissement']) && $_POST['typeDetablissement'] === 'COLLEGE') ? 'selected' : ''; ?> id="COLLEGE" value="COLLEGE">COLLEGE</option>
@@ -94,32 +95,32 @@ function references_machines()
 					<div id="select-2" class="champ_outil">
 						<label for="select-2-label">QUEL EST LE PLATEAU TYPE</label><select id="plateauType" name="plateauType" data-placeholder="">
 							<option value="1"></option>
-							<option id="PLATEAU-1" value="2" <?= (isset($_POST['plateauType']) && $_POST['plateauType'] === 'PLATEAU-1') ? 'selected' : ''; ?>> PLATEAU-1 </option>
-							<option id="PLATEAU-2" value="3" <?= (isset($_POST['plateauType']) && $_POST['plateauType'] === 'PLATEAU-2') ? 'selected' : ''; ?>> PLATEAU-2 </option>
-							<option id="PLATEAU-3" value="4" <?= (isset($_POST['plateauType']) && $_POST['plateauType'] === 'PLATEAU-3') ? 'selected' : ''; ?>> PLATEAU-3 </option>
-							<option id="PLATEAU-4" value="5" <?= (isset($_POST['plateauType']) && $_POST['plateauType'] === 'PLATEAU-4') ? 'selected' : ''; ?>> PLATEAU-4 </option>
-							<option id="PLATEAU-5" value="6" <?= (isset($_POST['plateauType']) && $_POST['plateauType'] === 'PLATEAU-5') ? 'selected' : ''; ?>> PLATEAU-5 </option>
+							<option id="PLATEAU-1" value="2" <?= (isset($_POST['plateauType']) && $_POST['plateauType'] === '2') ? 'selected' : ''; ?>> PLATEAU-1 </option>
+							<option id="PLATEAU-2" value="3" <?= (isset($_POST['plateauType']) && $_POST['plateauType'] === '3') ? 'selected' : ''; ?>> PLATEAU-2 </option>
+							<option id="PLATEAU-3" value="4" <?= (isset($_POST['plateauType']) && $_POST['plateauType'] === '4') ? 'selected' : ''; ?>> PLATEAU-3 </option>
+							<option id="PLATEAU-4" value="5" <?= (isset($_POST['plateauType']) && $_POST['plateauType'] === '5') ? 'selected' : ''; ?>> PLATEAU-4 </option>
+							<option id="PLATEAU-5" value="6" <?= (isset($_POST['plateauType']) && $_POST['plateauType'] === '6') ? 'selected' : ''; ?>> PLATEAU-5 </option>
 						</select>
 					</div>
 					<div id="select-3" class="champ_outil">
 						<label for="select-3-label">JE LAVE LES PLATEAUX EN DIFFERE OU SUR UNE MACHINE SPECIFIQUE
 							?</label><select id="plateauxEnDiffere" name="plateauxEnDiffere" data-placeholder="">
-							<option value="1" selected="selected">NON</option>
-							<option value="2">OUI</option>
+							<option value="1" <?= (isset($_POST['plateauxEnDiffere']) && $_POST['plateauxEnDiffere'] === '1') ? 'selected' : ''; ?>>NON</option>
+							<option value="2" <?= (isset($_POST['plateauxEnDiffere']) && $_POST['plateauxEnDiffere'] === '2') ? 'selected' : ''; ?>>OUI</option>
 						</select>
 					</div>
 					<div id="select-11" class="champ_outil">
 						<label for="select-11-label">JE LAVE LES VERRES EN DIFFERE OU SUR UNE MACHINE SPECIFIQUE
 							?</label><select id="verresEnDiffere" name="verresEnDiffere" data-placeholder="">
-							<option value="1" selected="selected">NON</option>
-							<option value="2">OUI</option>
+							<option value="1" <?= (isset($_POST['verresEnDiffere']) && $_POST['verresEnDiffere'] === '1') ? 'selected' : ''; ?>>NON</option>
+							<option value="2" <?= (isset($_POST['verresEnDiffere']) && $_POST['verresEnDiffere'] === '2') ? 'selected' : ''; ?>>OUI</option>
 						</select>
 					</div>
 					<div id="select-12" class="champ_outil">
 						<label for="select-12-label">JE LAVE LES COUVERTS EN DIFFERE OU SUR UNE MACHINE SPECIFIQUE
 							?</label><select id="couvertsEnDiffere" name="couvertsEnDiffere" data-placeholder="">
-							<option value="1" selected="selected">NON</option>
-							<option value="2">OUI</option>
+							<option value="1" <?= (isset($_POST['couvertsEnDiffere']) && $_POST['couvertsEnDiffere'] === '1') ? 'selected' : ''; ?>>NON</option>
+							<option value="2" <?= (isset($_POST['couvertsEnDiffere']) && $_POST['couvertsEnDiffere'] === '2') ? 'selected' : ''; ?>>OUI</option>
 						</select>
 					</div>
 					<!-- Type d'établissement -->
@@ -140,22 +141,22 @@ function references_machines()
 					</div>
 					<div id="select-6" class="champ_outil">
 						<label for="select-6-label">ESTIMATION DU NOMBRE DE CONVIVES SUR L'HEURE DE POINTE ?</label><select id="nbconvives" name="nbconvives" data-placeholder="" onchange="calculPointe()">
-							<option value="50">50%</option>
-							<option value="55">55%</option>
-							<option value="60">60%</option>
-							<option value="65">65%</option>
-							<option value="70" selected="selected">70%</option>
-							<option value="75">75%</option>
-							<option value="80">80%</option>
-							<option value="85">85%</option>
-							<option value="90">90%</option>
-							<option value="95">95%</option>
-							<option value="100">100%</option>
+							<option value="50" <?= (isset($_POST['nbconvives']) && $_POST['nbconvives'] === '50') ? 'selected' : ''; ?>>50%</option>
+							<option value="55" <?= (isset($_POST['nbconvives']) && $_POST['nbconvives'] === '55') ? 'selected' : ''; ?>>55%</option>
+							<option value="60" <?= (isset($_POST['nbconvives']) && $_POST['nbconvives'] === '60') ? 'selected' : ''; ?>>60%</option>
+							<option value="65" <?= (isset($_POST['nbconvives']) && $_POST['nbconvives'] === '65') ? 'selected' : ''; ?>>65%</option>
+							<option value="70" <?= (isset($_POST['nbconvives']) && $_POST['nbconvives'] === '70') ? 'selected' : ''; ?>>70%</option>
+							<option value="75" <?= (isset($_POST['nbconvives']) && $_POST['nbconvives'] === '75') ? 'selected' : ''; ?>>75%</option>
+							<option value="80" <?= (isset($_POST['nbconvives']) && $_POST['nbconvives'] === '80') ? 'selected' : ''; ?>>80%</option>
+							<option value="85" <?= (isset($_POST['nbconvives']) && $_POST['nbconvives'] === '85') ? 'selected' : ''; ?>>85%</option>
+							<option value="90" <?= (isset($_POST['nbconvives']) && $_POST['nbconvives'] === '90') ? 'selected' : ''; ?>>90%</option>
+							<option value="95" <?= (isset($_POST['nbconvives']) && $_POST['nbconvives'] === '95') ? 'selected' : ''; ?>>95%</option>
+							<option value="100" <?= (isset($_POST['nbconvives']) && $_POST['nbconvives'] === '100') ? 'selected' : ''; ?>>100%</option>
 						</select>
 					</div>
 					<div class="champ_outil">
 						<label for="calculation-1-field">NOMBRE DE COUVERTS SUR L'HEURE DE POINTE</label>
-						<input name="nbCouvertsSurHeureDePointe" id="nbCouvertsSurHeureDePointe" value="665" />
+						<input name="nbCouvertsSurHeureDePointe" id="nbCouvertsSurHeureDePointe" value="<?= $_POST['nbCouvertsSurHeureDePointe'] ?? '665'; ?>" />
 					</div>
 					<!-- Determination de la pointe -->
 					<!-- Mon type de machine -->
@@ -164,14 +165,14 @@ function references_machines()
 					</div>
 					<div id="type_mesures" class="champ_outil">
 						<label for="type_mesures-label">JE PRECONISE UNE MACHINE : A CASIERS / A CONVOYEUR ?</label><select id="type_mesures" name="type_mesures" data-placeholder="">
-							<option value="1">MACHINE A AVANCEMENT AUTOMATIQUE DES CASIERS</option>
-							<option value="2">MACHINE A AVANCEMENT AUTOMATIQUE A CONVOYEUR A DOIGTS</option>
+							<option value="1" <?= (isset($_POST['type_mesures']) && $_POST['type_mesures'] === '1') ? 'selected' : ''; ?>>MACHINE A AVANCEMENT AUTOMATIQUE DES CASIERS</option>
+							<option value="2" <?= (isset($_POST['type_mesures']) && $_POST['type_mesures'] === '2') ? 'selected' : ''; ?>>MACHINE A AVANCEMENT AUTOMATIQUE A CONVOYEUR A DOIGTS</option>
 						</select>
 					</div>
 					<div id="select-7" class="champ_outil">
-						<label for="select-7-label">JE PRECONISE UNE POMPE A CHALEUR ?</label><select id="select-7" name="select-7" data-placeholder="">
-							<option value="Oui">Oui</option>
-							<option value="Non">Non</option>
+						<label for="select-7-label">JE PRECONISE UNE POMPE A CHALEUR ?</label><select id="pompeAChaleur" name="pompeAChaleur" data-placeholder="">
+							<option value="1" <?= (isset($_POST['pompeAChaleur']) && $_POST['pompeAChaleur'] === '1') ? 'selected' : ''; ?>>Non</option>
+							<option value="2" <?= (isset($_POST['pompeAChaleur']) && $_POST['pompeAChaleur'] === '2') ? 'selected' : ''; ?>>Oui</option>
 						</select>
 					</div>
 					<!-- Mon type de machine -->
@@ -248,18 +249,22 @@ function references_machines()
 			</div>
 
 			<!-- table de choix -->
-			<div id="select-9" class="champ_outil">
-				<label for="select-9-label"> JE SELECTIONNE LA MACHINE ?</label><select id="select-9" name="select-9" data-placeholder="">
+			<div id="selectionMachine" class="champ_outil">
+				<label for="selectionMachine-label"> JE SELECTIONNE LA MACHINE ?</label><select id="selectionMachine" name="selectionMachine" onchange="selectionMachine(this.value)">
 				<?php
+					$profiMetres = references_machines()->profiMetres[0]->type_machine;
+					$premaxMetres = references_machines()->premaxMetres[0]->type_machine;
+					$profiCasiers = references_machines()->profiCasiers[0]->type_machine;
+					$premaxCasiers = references_machines()->premaxCasiers[0]->type_machine;
 					if ($_POST['type_mesures'] == 2) {
 				?>
-					<option value="choix-1"> <?= references_machines()->profiMetres[0]->type_machine ?> </option>
-					<option value="choix-2"> <?= references_machines()->premaxMetres[0]->type_machine ?> </option>
+					<option value="<?= $profiMetres ?>"> <?= $profiMetres ?> </option>
+					<option value="<?= $premaxMetres ?>"> <?= $premaxMetres ?> </option>
 				<?php
 					} else {
 				?>
-					<option value="choix-1"> <?= references_machines()->profiCasiers[0]->type_machine ?> </option>
-					<option value="choix-2"> <?= references_machines()->premaxCasiers[0]->type_machine ?> </option>								
+					<option value="<?= $profiCasiers ?>"> <?= $profiCasiers ?> </option>
+					<option value="<?= $premaxCasiers ?>"> <?= $premaxCasiers ?> </option>								
 				<?php
 					}
 				?>
@@ -287,7 +292,7 @@ function references_machines()
 			</div>
 			<div class="champ_outil">
 				<div>
-					<h4><a href=""><span> Le produit choisi</span></a></h4>
+					<h4><a href="http://localhost/wordpress/produit/"><span id="machineChoisie"> <?= ($_POST['type_mesures'] == 2) ? $profiMetres : $profiCasiers ?> </span></a></h4>
 				</div>
 			</div>
 			<!-- Je choisis mon plan -->
