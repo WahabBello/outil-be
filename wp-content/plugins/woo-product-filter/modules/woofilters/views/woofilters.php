@@ -465,7 +465,9 @@ class WoofiltersViewWpf extends ViewWpf {
 
 		global $wp_query;
 
-		$postPerPage = function_exists('wc_get_default_products_per_row') ? wc_get_default_products_per_row() * wc_get_default_product_rows_per_page() : get_option('posts_per_page');
+		$postPerPage = function_exists( 'wc_get_default_products_per_row' )
+			? apply_filters( 'loop_shop_per_page', wc_get_default_products_per_row() * wc_get_default_product_rows_per_page() )
+			: get_option( 'posts_per_page' );
 		$options     = FrameWpf::_()->getModule('options')->getModel('options')->getAll();
 		if ( isset($options['count_product_shop']) && isset($options['count_product_shop']['value']) && !empty($options['count_product_shop']['value']) ) {
 			$postPerPage = $options['count_product_shop']['value'];
@@ -2557,7 +2559,7 @@ class WoofiltersViewWpf extends ViewWpf {
 			} else {
 				$sql = "SELECT min( ROUND( val_dec{$taxSql}, {$dec} ) ) as wpfMinPrice, max( ROUND( val_dec{$taxSql}, {$dec} ) ) as wpfMaxPrice";
 			}
-			$query = $sql . ' FROM ' . $listTable . ' AS wpf_temp ' .
+			$query = $sql . ' FROM `' . $listTable . '` AS wpf_temp ' .
 				' INNER JOIN @__meta_data pm ON (pm.product_id=wpf_temp.ID)
 				WHERE key_id IN (' . implode( ',', $metaIds ) . ')';
 
@@ -2567,7 +2569,7 @@ class WoofiltersViewWpf extends ViewWpf {
 			} else {
 				$sql = "SELECT min( ROUND( meta_value{$taxSql}, {$dec} ) ) as wpfMinPrice, max( ROUND( meta_value{$taxSql}, {$dec} ) ) as wpfMaxPrice";
 			}
-			$query = $sql . ' FROM ' . $listTable . ' AS wpf_temp ' .
+			$query = $sql . ' FROM `' . $listTable . '` AS wpf_temp ' .
 				' INNER JOIN ' . $wpdb->postmeta . ' pm ON (pm.post_id=wpf_temp.ID)
 				WHERE meta_key IN ("' . implode( "','", array_map( 'esc_sql', $metas ) ) . '")';
 		}

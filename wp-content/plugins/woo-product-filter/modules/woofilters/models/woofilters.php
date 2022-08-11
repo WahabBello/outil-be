@@ -184,7 +184,7 @@ class WoofiltersModelWpf extends ModelWpf {
 					'popularity' => esc_html__('Popularity', 'woo-product-filter'),
 					'rating' => esc_html__('Rating', 'woo-product-filter'),
 					'date' => esc_html__('Newness', 'woo-product-filter'),
-					'date-desc' => esc_html__('Oldest first', 'woo-product-filter'),
+					'date-asc' => esc_html__('Oldest first', 'woo-product-filter'),
 					'price' => esc_html__('Price: low to high', 'woo-product-filter'),
 					'price-desc' => esc_html__('Price: high to low', 'woo-product-filter'),
 					'rand' => esc_html__('Random', 'woo-product-filter'),

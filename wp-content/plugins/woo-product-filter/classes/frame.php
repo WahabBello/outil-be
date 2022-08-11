@@ -111,11 +111,6 @@ class FrameWpf {
 		}
 	}
 	public function init() {
-
-		if ( ! session_id() ) {
-			session_start();
-		}
-
 		ReqWpf::init();
 		$this->_extractTables();
 		$this->_extractModules();

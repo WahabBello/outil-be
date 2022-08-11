@@ -111,9 +111,10 @@ class WoofiltersWpf extends ModuleWpf {
 		add_action( 'elementor/frontend/before_render', array( $this, 'forceElementorProductFilter' ) );
 	}
 
-	public function forceElementorProductFilter() {
-		$paged = get_query_var( 'paged' );
-		if ( $paged > 0 && '' !== $this->mainWCQueryFiltered ) {
+	public function forceElementorProductFilter( $widget ) {
+		$paged      = get_query_var( 'paged' );
+		$widgetName = $widget->get_name();
+		if ( '' !== $this->mainWCQueryFiltered && ( $paged > 0 || ( 'archive-posts' == $widgetName && get_query_var( 'wpf_query' ) == 1 ) ) ) {
 			$this->mainWCQueryFiltered['paged'] = $paged;
 			$GLOBALS['wp_query']                = new WP_Query( $this->mainWCQueryFiltered ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		}
@@ -916,6 +917,7 @@ class WoofiltersWpf extends ModuleWpf {
 		}
 
 		if ( $isMultiLogicOr ) {
+			ReqWpf::startSession();
 			ReqWpf::setVar( 'wpf_light', $q->query_vars, 'session' );
 		}
 
@@ -949,8 +951,8 @@ class WoofiltersWpf extends ModuleWpf {
 				case 'sku-desc':
 					add_filter( 'posts_clauses', array( $this, 'addSKUOrderDesc' ) );
 					break;
-				case 'date-desc':
-					add_filter('posts_clauses', array($this, 'addDateOrderDesc'));
+				case 'date-asc':
+					add_filter('posts_clauses', array($this, 'addDateOrderAsc'));
 					break;
 			}
 		}
@@ -1061,7 +1063,7 @@ class WoofiltersWpf extends ModuleWpf {
 
 		return $args;
 	}
-	public function addDateOrderDesc( $args ) {
+	public function addDateOrderAsc( $args ) {
 		global $wpdb;
 		$args['orderby'] = $wpdb->posts . '.post_date, ' . $wpdb->posts . '.ID ';
 		remove_filter('posts_clauses', array($this, 'addDateOrderDesc'));
@@ -1216,8 +1218,8 @@ class WoofiltersWpf extends ModuleWpf {
 						case 'sku-desc':
 							add_filter( 'posts_clauses', array( $this, 'addSKUOrderDesc' ) );
 							break;
-						case 'date-desc':
-							add_filter( 'posts_clauses', array( $this, 'addDateOrderDesc' ) );
+						case 'date-asc':
+							add_filter( 'posts_clauses', array( $this, 'addDateOrderAsc' ) );
 							break;
 					}
 				}
@@ -2234,12 +2236,14 @@ class WoofiltersWpf extends ModuleWpf {
 	}
 
 	public function createTemporaryTable( $table, $sql, $postfix = '' ) {
+
 		if ( '' !== $postfix ) {
-			$table .= "_$postfix";
+			$table .= "_{$postfix}";
 		}
+
 		$resultTable = $table;
 
-		if ( ! DbWpf::query( 'DROP TEMPORARY TABLE IF EXISTS ' . $table ) ) {
+		if ( ! DbWpf::query( "DROP TEMPORARY TABLE IF EXISTS `{$table}`") ) {
 			return false;
 		}
 
@@ -2265,7 +2269,7 @@ class WoofiltersWpf extends ModuleWpf {
 
 		}
 
-		if ( DbWpf::query( 'CREATE TEMPORARY TABLE ' . $table . ' (index my_pkey (id)) AS ' . $sql, true ) === false ) {
+		if ( DbWpf::query( "CREATE TEMPORARY TABLE `{$table}` (index my_pkey (id)) AS {$sql}", true ) === false ) {
 			$resultTable = '(' . $sql . ')';
 		}
 
@@ -2369,12 +2373,15 @@ class WoofiltersWpf extends ModuleWpf {
 			if ( isset( $calc['light'] ) ) {
 				$calc['full'] = $calc['light'];
 				unset( $calc['light'] );
-			} else {
+			} elseif ( $ajax ) {
+
+				ReqWpf::startSession();
 				$lightFromSession = ReqWpf::getVar( 'wpf_light', 'session' );
 
 				if ( isset( $lightFromSession ) ) {
 					$calc['full'] = $lightFromSession;
 				}
+
 			}
 
 			if ( $isGetNames ) {
@@ -2443,7 +2450,7 @@ class WoofiltersWpf extends ModuleWpf {
 
 			$isModeStandart = in_array( $mode, array( 'full', 'light' ), true );
 
-			if ( ( ! $multiLogicOr && ! $isModeStandart ) || ( $multiLogicOr && $isModeStandart ) ) {
+			if ( ! empty( $this->clauses ) && ( ( ! $multiLogicOr && ! $isModeStandart ) || ( $multiLogicOr && $isModeStandart ) ) ) {
 				$filterLoop = $this->getFilterLoopFromMode( $mode, $args );
 			} else {
 				$filterLoop = new WP_Query( $args );
@@ -2830,24 +2837,23 @@ class WoofiltersWpf extends ModuleWpf {
 			$addSqls['main']['taxonomyList'] = implode( "', '", $taxonomyList );
 		}
 
-		if ( $param['withCount'] ) {
-			$taxonomyList = array();
-			$colorGroup   = DispatcherWpf::applyFilters( 'getColorGroupForExistTerms', array(), $param );
-			if ( ! empty( $colorGroup ) ) {
-				foreach ( $param['taxonomy'] as $key => $tax ) {
-					if ( key_exists( $tax, $colorGroup ) ) {
-						unset( $param['taxonomy'][ $key ] );
-						$taxonomyList[] = $tax;
-					}
+
+		$taxonomyList = array();
+		$colorGroup   = DispatcherWpf::applyFilters( 'getColorGroupForExistTerms', array(), $param );
+		if ( ! empty( $colorGroup ) ) {
+			foreach ( $param['taxonomy'] as $key => $tax ) {
+				if ( key_exists( $tax, $colorGroup ) ) {
+					unset( $param['taxonomy'][ $key ] );
+					$taxonomyList[] = $tax;
 				}
-				$addSqls['color']['withCount']    = false;
-				$addSqls['color']['fields']       = 'tt.term_id, tt.taxonomy, wpf_temp.ID';
-				$addSqls['color']['taxonomyList'] = implode( "', '", $taxonomyList );
 			}
+			$addSqls['color']['withCount']    = false;
+			$addSqls['color']['fields']       = 'tt.term_id, tt.taxonomy, wpf_temp.ID';
+			$addSqls['color']['taxonomyList'] = implode( "', '", $taxonomyList );
 		}
 
 		foreach ( $addSqls as $key => $addSql ) {
-			$sql[ $key ] = 'SELECT ' . $addSql['fields'] . ' FROM ' . $listTable . ' AS wpf_temp INNER JOIN ' . $wpdb->term_relationships . ' tr ON (tr.object_id=wpf_temp.ID) INNER JOIN ' . $wpdb->term_taxonomy . ' tt ON (tt.term_taxonomy_id=tr.term_taxonomy_id) ';
+			$sql[ $key ] = 'SELECT ' . $addSql['fields'] . ' FROM `' . $listTable . '` AS wpf_temp INNER JOIN ' . $wpdb->term_relationships . ' tr ON (tr.object_id=wpf_temp.ID) INNER JOIN ' . $wpdb->term_taxonomy . ' tt ON (tt.term_taxonomy_id=tr.term_taxonomy_id) ';
 			if ( $addSql['withCount'] && $param['isInStockOnly'] ) {
 				$metaKeyId = $this->getMetaKeyId( '_stock_status' );
 				if ( $metaKeyId ) {
@@ -2879,14 +2885,14 @@ class WoofiltersWpf extends ModuleWpf {
 				'currentSettings' => $param['currentSettings']
 			) );
 		} else {
-			$sql                      = DispatcherWpf::applyFilters( 'addCustomAttributesSql', $sql, array(
+			$sql['main']              = DispatcherWpf::applyFilters( 'addCustomAttributesSql', $sql['main'], array(
 				'taxonomies'      => $param['taxonomy'],
 				'withCount'       => $param['withCount'],
-				'productList'     => '(select id from ' . $listTable . ')',
+				'productList'     => '(select id from `' . $listTable . '`)',
 				'generalSettings' => $param['generalSettings'],
 				'currentSettings' => $param['currentSettings']
 			) );
-			$wpdb->wpf_prepared_query = $sql;
+			$wpdb->wpf_prepared_query = $sql['main'];
 			$termProducts             = $wpdb->get_results( $wpdb->wpf_prepared_query );
 		}
 
@@ -2960,11 +2966,11 @@ class WoofiltersWpf extends ModuleWpf {
 					}
 					$termIds[] = $termId;
 
-					$sql                                = "SELECT count(DISTINCT tr.`object_id`) FROM `{$listTable}` AS wpf_temp 
+					$sqlTemp                            = "SELECT count(DISTINCT tr.`object_id`) FROM `{$listTable}` AS wpf_temp 
     					INNER JOIN {$wpdb->term_relationships} AS tr ON (tr.`object_id`=wpf_temp.`ID`) 
 					    INNER JOIN {$wpdb->term_taxonomy} AS wtf ON tr.`term_taxonomy_id` = wtf.`term_taxonomy_id`    
 						WHERE wtf.`term_id` IN (" . implode( ',', $termIds ) . ')';
-					$cnt                                = intval( DbWpf::get( $sql, 'one' ) );
+					$cnt                                = intval( DbWpf::get( $sqlTemp, 'one' ) );
 					$existTerms[ $taxonomy ][ $termId ] = $cnt;
 					if ( isset( $calcCategories[ $termId ] ) ) {
 						$calcCategories[ $termId ] = $cnt;
@@ -2973,7 +2979,7 @@ class WoofiltersWpf extends ModuleWpf {
 			}
 		}
 
-		if ( ! empty( $colorGroup ) ) {
+		if ( ! empty( $colorGroup ) && isset( $sql['color'] ) ) {
 			$termProducts = DbWpf::get( $sql['color'] );
 			$existTerms   = DispatcherWpf::applyFilters( 'getExistTermsColor', $existTerms, $colorGroup, $termProducts );
 		}
@@ -3046,7 +3052,7 @@ class WoofiltersWpf extends ModuleWpf {
 						case 'wpfVendors':
 							if ( empty( $result['existsUsers'] ) ) {
 								$query = 'SELECT DISTINCT ' . $wpdb->users . '.ID' .
-										 ' FROM ' . $listTable . ' AS wpf_temp' .
+										 ' FROM `' . $listTable . '` AS wpf_temp' .
 										 ' INNER JOIN ' . $wpdb->posts . ' p ON (p.ID=wpf_temp.ID)' .
 										 ' JOIN ' . $wpdb->users . ' ON p.post_author = ' . $wpdb->users . '.ID';
 
@@ -3425,7 +3431,9 @@ class WoofiltersWpf extends ModuleWpf {
 			foreach ( $this->clausesByParam as $mode => $clausesMode ) {
 				if ( 'variation' !== $mode ) {
 					foreach ( $clausesMode as $key => $clausesRemove ) {
-						$this->clauses[ $key ] = array_diff( $this->clauses[ $key ], $clausesRemove );
+						if ( isset( $this->clauses[ $key ] ) ) {
+							$this->clauses[ $key ] = array_diff( $this->clauses[ $key ], $clausesRemove );
+						}
 					}
 				}
 			}
@@ -3433,7 +3441,9 @@ class WoofiltersWpf extends ModuleWpf {
 		} elseif ( isset( $this->clausesByParam[ $mode ] ) ) {
 
 			foreach ( $this->clausesByParam[ $mode ] as $key => $clausesRemove ) {
-				$this->clauses[ $key ] = array_diff( $this->clauses[ $key ], $clausesRemove );
+				if ( isset( $this->clauses[ $key ] ) ) {
+					$this->clauses[ $key ] = array_diff( $this->clauses[ $key ], $clausesRemove );
+				}
 			}
 		}
 

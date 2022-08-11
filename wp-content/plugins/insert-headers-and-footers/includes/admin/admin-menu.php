@@ -10,6 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 add_action( 'admin_menu', 'wpcode_register_admin_menu', 9 );
+add_filter( 'plugin_action_links_' . WPCODE_PLUGIN_BASENAME, 'wpcode_add_plugin_action_links' );
 
 /**
  * Register the admin menu items.
@@ -25,7 +26,7 @@ function wpcode_register_admin_menu() {
 	$svg         = get_wpcode_icon( 'logo', 36, 34, '-10 -6 80 80' );
 	$wpcode_icon = 'data:image/svg+xml;base64,' . base64_encode( $svg ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 
-	add_menu_page( __( 'Code Snippets', 'insert-headers-and-footers' ), __( 'Code Snippets', 'insert-headers-and-footers' ), 'wpcode_edit_snippets', 'wpcode', 'wpcode_admin_menu_page', $wpcode_icon, '81.4568' );
+	add_menu_page( __( 'Code Snippets', 'insert-headers-and-footers' ), __( 'Code Snippets', 'insert-headers-and-footers' ), 'wpcode_edit_snippets', 'wpcode', 'wpcode_admin_menu_page', $wpcode_icon, '81.45687234432916' );
 
 	wpcode_load_admin_pages();
 }
@@ -68,4 +69,28 @@ function wpcode_load_admin_pages() {
 	new WPCode_Admin_Page_Generator();
 	new WPCode_Admin_Page_Tools();
 	new WPCode_Admin_Page_Settings();
+}
+
+/**
+ * Add a link to the code snippets list in the plugins list view.
+ *
+ * @param array $links The links specific to our plugin.
+ *
+ * @return array
+ */
+function wpcode_add_plugin_action_links( $links ) {
+	$wpcode_links = array(
+		sprintf(
+			'<a href="%1$s">%2$s</a>',
+			add_query_arg(
+				array(
+					'page' => 'wpcode',
+				),
+				admin_url( 'admin.php' )
+			),
+			esc_html__( 'Code Snippets', 'insert-headers-and-footers' )
+		),
+	);
+
+	return array_merge( $wpcode_links, $links );
 }

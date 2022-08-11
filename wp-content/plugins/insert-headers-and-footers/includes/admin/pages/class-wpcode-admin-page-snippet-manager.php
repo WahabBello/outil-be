@@ -298,7 +298,7 @@ class WPCode_Admin_Page_Snippet_Manager extends WPCode_Admin_Page {
 					<?php $this->field_code_type(); ?>
 				</div>
 			</div>
-			<textarea name="wpcode_snippet_code" id="wpcode_snippet_code" class="widefat" rows="8" <?php disabled( ! current_user_can( 'unfiltered_html' ) ); ?>><?php echo esc_html( wp_unslash( $value ) ); ?></textarea>
+			<textarea name="wpcode_snippet_code" id="wpcode_snippet_code" class="widefat" rows="8" <?php disabled( ! current_user_can( 'unfiltered_html' ) ); ?>><?php echo esc_html( $value ); ?></textarea>
 			<?php
 			wp_editor(
 				$value,
@@ -460,7 +460,7 @@ class WPCode_Admin_Page_Snippet_Manager extends WPCode_Admin_Page {
 	 * @return int
 	 */
 	private function get_auto_insert_value() {
-		return isset( $this->snippet ) ? $this->snippet->get_auto_insert() : 0;
+		return isset( $this->snippet ) ? $this->snippet->get_auto_insert() : 1;
 	}
 
 	/**
@@ -726,7 +726,7 @@ class WPCode_Admin_Page_Snippet_Manager extends WPCode_Admin_Page {
 		}
 
 		$code_type    = isset( $_POST['wpcode_snippet_type'] ) ? sanitize_text_field( wp_unslash( $_POST['wpcode_snippet_type'] ) ) : 'html';
-		$snippet_code = isset( $_POST['wpcode_snippet_code'] ) ? wp_unslash( $_POST['wpcode_snippet_code'] ) : '';
+		$snippet_code = isset( $_POST['wpcode_snippet_code'] ) ? $_POST['wpcode_snippet_code'] : '';
 		if ( 'text' === $code_type ) {
 			$snippet_code = wpautop( $snippet_code );
 		}

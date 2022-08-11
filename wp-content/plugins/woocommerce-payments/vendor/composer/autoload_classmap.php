@@ -222,6 +222,7 @@ return array(
     'WCPay\\MultiCurrency\\Compatibility\\WooCommerceDeposits' => $baseDir . '/includes/multi-currency/Compatibility/WooCommerceDeposits.php',
     'WCPay\\MultiCurrency\\Compatibility\\WooCommerceFedEx' => $baseDir . '/includes/multi-currency/Compatibility/WooCommerceFedEx.php',
     'WCPay\\MultiCurrency\\Compatibility\\WooCommerceNameYourPrice' => $baseDir . '/includes/multi-currency/Compatibility/WooCommerceNameYourPrice.php',
+    'WCPay\\MultiCurrency\\Compatibility\\WooCommercePointsAndRewards' => $baseDir . '/includes/multi-currency/Compatibility/WooCommercePointsAndRewards.php',
     'WCPay\\MultiCurrency\\Compatibility\\WooCommercePreOrders' => $baseDir . '/includes/multi-currency/Compatibility/WooCommercePreOrders.php',
     'WCPay\\MultiCurrency\\Compatibility\\WooCommerceProductAddOns' => $baseDir . '/includes/multi-currency/Compatibility/WooCommerceProductAddOns.php',
     'WCPay\\MultiCurrency\\Compatibility\\WooCommerceSubscriptions' => $baseDir . '/includes/multi-currency/Compatibility/WooCommerceSubscriptions.php',

@@ -25,7 +25,6 @@
 		_thisObj.runCustomJs();
 		_thisObj.addCustomCss();
 		_thisObj.chageRangeFieldWidth();
-		_thisObj.hideFiltersLoader();
 		_thisObj.addSpecificPluginActions();
 		_thisObj.resizeWindow();
 		_thisObj.changeOrderBy();
@@ -34,6 +33,14 @@
 		jQuery('.wpfMainWrapper').each(function() {
 			_thisObj.markCheckboxSelected(jQuery(this));
 		});
+
+		if (_thisObj.isAdminPreview) {
+			_thisObj.hideFiltersLoader();
+		} else {
+			setTimeout(function () {
+				_thisObj.hideFiltersLoader();
+			}, 100);
+		}
 	});
 
 	WpfFrontendPage.prototype.changeOrderBy = (function () {

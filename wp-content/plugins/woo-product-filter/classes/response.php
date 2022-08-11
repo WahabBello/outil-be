@@ -22,8 +22,9 @@ class ResponseWpf {
 		if (count($this->errors) > 0) {
 			$this->error = true;
 		}
-		if ($isAjax || $forceAjax) {
-			HtmlWpf::echoEscapedHtml(jsonEncodeUTFnormalWpf($this));
+		if ( $isAjax || $forceAjax ) {
+			HtmlWpf::echoEscapedHtml( jsonEncodeUTFnormalWpf( $this ) );
+			ReqWpf::endSession();
 			exit();
 		}
 		return $this;

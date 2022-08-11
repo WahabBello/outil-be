@@ -7,10 +7,21 @@ class ReqWpf {
 	public static function init() {
 		add_filter('sanitize_text_field', array('ReqWpf', 'sanitizeData'), 999, 2);
 	}
+
 	public static function startSession() {
+
 		if (!UtilsWpf::isSessionStarted()) {
 			session_start();
 		}
+
+	}
+
+	public static function endSession() {
+
+		if ( UtilsWpf::isSessionStarted() ) {
+			session_write_close();
+		}
+
 	}
 
 	/**

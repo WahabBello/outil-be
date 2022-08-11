@@ -394,4 +394,13 @@ class WPCode_Snippet_Execute {
 	public function is_doing_activation() {
 		return $this->doing_activation;
 	}
+
+	/**
+	 * Mark as finished activation.
+	 *
+	 * @return void
+	 */
+	public function not_doing_activation() {
+		$this->doing_activation = false;
+	}
 }

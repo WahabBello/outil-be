@@ -490,6 +490,8 @@ class WPCode_Snippet {
 		if ( $has_error ) {
 			$this->active = false;
 		}
+
+		wpcode()->execute->not_doing_activation();
 	}
 
 	/**

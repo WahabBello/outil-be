@@ -6,6 +6,10 @@ $vendorDir = dirname(__DIR__);
 $baseDir   = dirname($vendorDir);
 
 return array(
+	'WCPay\\MultiCurrency\\Compatibility\\WooCommercePointsAndRewards' => array(
+		'version' => 'dev-trunk',
+		'path'    => $baseDir . '/includes/multi-currency/Compatibility/WooCommercePointsAndRewards.php'
+	),
 	'WCPay\\MultiCurrency\\Compatibility\\WooCommerceProductAddOns' => array(
 		'version' => 'dev-trunk',
 		'path'    => $baseDir . '/includes/multi-currency/Compatibility/WooCommerceProductAddOns.php'

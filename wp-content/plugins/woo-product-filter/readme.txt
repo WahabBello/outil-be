@@ -4,7 +4,7 @@ Donate link: https://woobewoo.com/product/woocommerce-filter/
 Tags: product filter, WooCommerce product filter, shop filter, e-commerce filter, WooCommerce filter, product, filter 
 Requires at least: 3.4.0
 Tested up to: 6.0
-Stable tag: 2.1.5
+Stable tag: 2.1.6
  
 Filter products by categories, attributes, prices, and more. 100% Elementor Compatibility. Shoppers easily find products with WooCommerce Product Filter
 
@@ -142,6 +142,17 @@ If none of this advice helps you, contact us via [support form on our website](h
 You may help us translate the plugin into your language and get the PRO version of the plugin for free as soon as it is released. If this method seems to be too complicated, please send us a request and we will let you know as soon as the WooBeWoo Filter plugin will be available in your localization.
 
 == Changelog ==
+
+= 2.1.6 =
+ * Fixed get post per page
+ * Fixed init session && escape name table
+ * Added session_write_close for ajax request
+ * Fixed color group
+ * Fixed hiding loader until filter is fully loaded
+ * Fixed filtration for Post Archive widget
+ * Fixed Sorting Oldest first
+ * Added check for non-empty clauses
+ * Minor issues fix
 
 = 2.1.5 =
  * Fixed ion range slider cannot display value greater than 2000000

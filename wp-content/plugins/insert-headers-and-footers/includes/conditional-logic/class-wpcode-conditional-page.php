@@ -193,7 +193,8 @@ class WPCode_Conditional_Page extends WPCode_Conditional_Type {
 	 * @return string
 	 */
 	public function get_page_url() {
-		return isset( $_SERVER['REQUEST_URI'] ) ? home_url( $_SERVER['REQUEST_URI'] ) : '';
+		global $wp;
+		return isset( $wp->request ) ? trailingslashit( home_url( $wp->request ) ) : '';
 	}
 
 	/**
@@ -251,20 +252,5 @@ class WPCode_Conditional_Page extends WPCode_Conditional_Type {
 		}
 
 		return $labels;
-	}
-
-	/**
-	 * Override the main rule evaluate function to add some specific processing of values.
-	 *
-	 * @param array $rule_group The rule group array to evaluate.
-	 *
-	 * @return bool
-	 */
-	public function evaluate_rule_row( $rule_group ) {
-		if ( 'page_url' === $rule_group['option'] ) {
-			$rule_group['value'] = trailingslashit( $rule_group['value'] );
-		}
-
-		return parent::evaluate_rule_row( $rule_group );
 	}
 }

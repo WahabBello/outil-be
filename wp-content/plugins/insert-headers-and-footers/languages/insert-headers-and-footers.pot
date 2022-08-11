@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: WPCode - Insert Headers, Footers, and Code Snippets 2.0.0\n"
+"Project-Id-Version: WPCode - Insert Headers, Footers, and Code Snippets 2.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/wpcode\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2022-07-19T10:07:09+00:00\n"
+"POT-Creation-Date: 2022-07-22T06:45:55+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.5.0\n"
 "X-Domain: insert-headers-and-footers\n"
@@ -59,7 +59,8 @@ msgstr ""
 msgid "There was an error and the connection failed. Please contact your web host with the technical details below."
 msgstr ""
 
-#: includes/admin/admin-menu.php:28
+#: includes/admin/admin-menu.php:29
+#: includes/admin/admin-menu.php:90
 #: includes/admin/pages/class-wpcode-admin-page-code-snippets.php:32
 msgid "Code Snippets"
 msgstr ""

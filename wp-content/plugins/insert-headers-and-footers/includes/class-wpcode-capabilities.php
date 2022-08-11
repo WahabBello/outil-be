@@ -31,7 +31,7 @@ class WPCode_Capabilities {
 	 * @return WP_Role[]
 	 */
 	public static function get_roles() {
-		$roles      = get_editable_roles();
+		$roles      = wp_roles()->roles;
 		$role_array = array();
 		foreach ( array_keys( $roles ) as $role_key ) {
 			$role_array[] = get_role( $role_key );

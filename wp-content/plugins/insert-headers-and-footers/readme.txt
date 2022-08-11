@@ -1,10 +1,10 @@
-=== Insert Headers and Footers - Code Snippets by WPCode - Easy WordPress Code Manager ===
+=== WPCode - Insert Headers and Footers + Custom Code Snippets - WordPress Code Manager ===
 Contributors: WPbeginner, smub, gripgrip
 Tags: code, css, php, footer, functions, content, facebook pixel, footer code, footer scripts, footers, google analytics, head, header, header code, header scripts, headers, insert, insert code, insert scripts, js, meta, meta tags, scripts, html, javascript, multisite, code snippets
 Requires at least: 4.6
 Tested up to: 6.0
 Requires PHP: 5.5
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -108,7 +108,7 @@ Managing multiple websites or developing in a staging environment?
 
 We offer an easy way to import and export your custom code snippets, functions, and header and footer scripts to help you save time.
 
-Switching from another code snippets plugin? 
+Switching from another code snippets plugin?
 
 We have an automatic import feature that imports your custom code snippets from both Woody Code Snippets and Code Snippets Pro plugin.
 
@@ -285,10 +285,16 @@ Syed Balkhi
 
 == Changelog ==
 
+= 2.0.1 =
+* Tweak: Auto-insert is now the default option when creating a new snippet.
+* Tweak: We updated the way we add custom capabilities to improve a scenario where the plugin needed to be reactivated.
+* Fix: We updated the way PHP code is saved to improve support for backslashes.
+* Fix: We tweaked the Page URL rules that were not matching in some cases.
+
 = 2.0.0 =
-* New: Insert Headers and Footers is now WPCode - We make it easy for you to add code snippets in WordPress without having to edit your themeâ€™s functions.php file.
+* New: Insert Headers and Footers is now WPCode - We make it easy for you to add code snippets in WordPress without having to edit your theme's functions.php file.
 * New: Full Code Snippets Library - WordPress code snippets library right inside the WPCode plugin.
-* New: WordPress code generators to help you quickly generate ready-to-use code using the latest WordPress coding standards and APIâ€™s.
+* New: WordPress code generators to help you quickly generate ready-to-use code using the latest WordPress coding standards and APIs.
 * New: Conditional Logic for Code Snippets - Instead of learning the various WordPress conditional logic queries, you can use our beginner-friendly conditional logic user interface.
 * New: Auto-insert in various locations of your site or manual code output using shortcodes.
 

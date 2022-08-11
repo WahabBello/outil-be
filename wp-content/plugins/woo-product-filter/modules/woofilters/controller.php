@@ -660,7 +660,7 @@ class WoofiltersControllerWpf extends ControllerWpf {
 								);
 								$args['order'] = 'DESC';
 								break;
-							case 'date-desc':
+							case 'date-asc':
 								$args['orderby']  = array(
 									'date' => 'ASC',
 									'ID' => 'ASC',
