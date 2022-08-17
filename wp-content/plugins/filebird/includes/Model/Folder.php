@@ -115,6 +115,9 @@ class Folder {
 				}
 			}
 		}
+		if(count($post_ids) > 0) {
+			clean_post_cache( $post_ids[0] );
+		}
 	}
 	public static function detail( $name, $parent ) {
 		global $wpdb;
