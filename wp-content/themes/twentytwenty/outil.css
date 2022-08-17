@@ -70,3 +70,7 @@
   padding: 0 15px;
   margin-bottom: 20px;
 }
+
+#donnes_premax, #prix_premax {
+  display: none;
+}

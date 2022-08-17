@@ -118,7 +118,7 @@ function dooneesProduit()
 // print_r(referencesMachines());
 // echo "<pre>";
 ?>
-<pre> <?= var_dump(dooneesProduit()) ?> </pre>
+<!-- <pre> <?= var_dump(dooneesProduit()) ?> </pre> -->
 
 
 <main id="site-content">
@@ -297,9 +297,9 @@ function dooneesProduit()
 
 			<!-- table de choix -->
 			<div id="selectionMachine" class="champ_outil">
-				<label for="selectionMachine-label"> JE SELECTIONNE LA MACHINE ?</label><select id="selectionMachine" name="selectionMachine" onchange="selectionMachine(this.value)">
-						<option value="<?= choixProduit()->profi ?>"> <?= choixProduit()->profi ?> </option>
-						<option value="<?= choixProduit()->premax ?>"> <?= choixProduit()->premax ?> </option>
+				<label for="selectionMachine-label"> JE SELECTIONNE LA MACHINE ?</label><select id="selectionMachine" name="selectionMachine" onchange="selectionMachine(this)">
+						<option value="1"> <?= choixProduit()->profi ?> </option>
+						<option value="2"> <?= choixProduit()->premax ?> </option>
 				</select>
 			</div>
 
@@ -310,8 +310,12 @@ function dooneesProduit()
 				</div>
 			</div>
 			<div id="calculation-10" class="champ_outil">
-				<div>
-					<label for="calculation-10-field">?????</label>
+				<div id="prix_profi">
+					<label for="calculation-10-field"> <?= dooneesProduit()->profi[0]->prix ?> </label>
+					<span id="tarif_produit"> </span>
+				</div>
+				<div id="prix_premax">
+					<label for="calculation-10-field"> <?= dooneesProduit()->premax[0]->prix ?> </label>
 					<span id="tarif_produit"> </span>
 				</div>
 			</div>
@@ -330,7 +334,7 @@ function dooneesProduit()
 			<!-- Je choisis mon plan -->
 
 
-			<div id="section-11" class="champ_outil">
+			<div id="donnes_profi" class="champ_outil">
 				<div>
 					<h5 class="">DONNEES TECHNIQUES</h5>
 				</div>
@@ -339,7 +343,7 @@ function dooneesProduit()
 					<table class="donnees_techniques">
 						<tr class="titre_tableau">
 							<td>LONGUEUR MACHINE AVEC TUNNEL DE SECHAGE</td>
-							<td> ?? </td>
+							<td> <?= dooneesProduit()->profi[0]->longueur_machine_ts ?> </td>
 							<td>mm </td>
 						</tr>
 						<tr class="titre_tableau">
@@ -349,17 +353,17 @@ function dooneesProduit()
 						</tr>
 						<tr>
 							<td>VITESSE 1</td>
-							<td>??</td>
+							<td> <?= dooneesProduit()->profi[0]->vitesse_transport1 ?> </td>
 							<td>Casiers par heure</td>
 						</tr>
 						<tr>
 							<td>VITESSE 2</td>
-							<td>??</td>
+							<td> <?= dooneesProduit()->profi[0]->vitesse_transport2 ?> </td>
 							<td>Casiers par heure</td>
 						</tr>
 						<tr>
 							<td>VITESSE 3</td>
-							<td>??</td>
+							<td> <?= dooneesProduit()->profi[0]->vitesse_transport3 ?> </td>
 							<td>Casiers par heure</td>
 						</tr>
 						<tr class="titre_tableau">
@@ -369,12 +373,12 @@ function dooneesProduit()
 						</tr>
 						<tr>
 							<td>PUISSANCE INSTALLEE</td>
-							<td>??</td>
+							<td> <?= dooneesProduit()->profi[0]->puissance_installe ?> </td>
 							<td>kw</td>
 						</tr>
 						<tr>
 							<td>PUISSANCE CONSOMMEE</td>
-							<td>??</td>
+							<td> <?= dooneesProduit()->profi[0]->puissance_consommee ?> </td>
 							<td>kW/h</td>
 						</tr>
 						<tr class="titre_tableau">
@@ -389,22 +393,22 @@ function dooneesProduit()
 						</tr>
 						<tr>
 							<td>VITESSE 1</td>
-							<td>??</td>
+							<td> <?= dooneesProduit()->profi[0]->vitesse_debit1 ?> </td>
 							<td>litres par heure</td>
 						</tr>
 						<tr>
 							<td>VITESSE 2</td>
-							<td>180</td>
+							<td> <?= dooneesProduit()->profi[0]->vitesse_debit2 ?> </td>
 							<td>litres par heure</td>
 						</tr>
 						<tr>
 							<td>VITESSE 3</td>
-							<td>??</td>
+							<td> <?= dooneesProduit()->profi[0]->vitesse_debit3 ?> </td>
 							<td>litres par heure</td>
 						</tr>
 						<tr>
 							<td>REMPLISSAGE EAU CHAUDE ADOUCIE 5-7°TH</td>
-							<td>??</td>
+							<td> <?= dooneesProduit()->profi[0]->remplissage_eau_chaude ?> </td>
 							<td>litres</td>
 						</tr>
 						<tr class="titre_tableau">
@@ -414,22 +418,22 @@ function dooneesProduit()
 						</tr>
 						<tr>
 							<td>DEBIT REJETE</td>
-							<td>??</td>
+							<td> <?= dooneesProduit()->profi[0]->debit_rejete ?> </td>
 							<td>m3 par heure</td>
 						</tr>
 						<tr>
 							<td>TEMPERATURE DE REJET</td>
-							<td>??</td>
+							<td> <?= dooneesProduit()->profi[0]->temperature_rejet ?> </td>
 							<td>°C</td>
 						</tr>
 						<tr>
 							<td>HUMIDITE RELATIVE</td>
-							<td>??</td>
+							<td> <?= dooneesProduit()->profi[0]->humidite_relative ?> </td>
 							<td>%</td>
 						</tr>
 						<tr>
 							<td>RATIO D'HUMIDITE</td>
-							<td>??</td>
+							<td> <?= dooneesProduit()->profi[0]->ratio_humidite ?> </td>
 							<td>litres par heure</td>
 						</tr>
 						<tr class="titre_tableau">
@@ -439,17 +443,144 @@ function dooneesProduit()
 						</tr>
 						<tr>
 							<td>CHALEUR SENSIBLE (kW)</td>
-							<td>??</td>
+							<td> <?= dooneesProduit()->profi[0]->chaleur_sensible ?> </td>
 							<td>kw</td>
 						</tr>
 						<tr>
 							<td>CHALEUR LATENTE (kW)</td>
-							<td>??</td>
+							<td> <?= dooneesProduit()->profi[0]->chaleur_latente?> </td>
 							<td>kw</td>
 						</tr>
 						<tr>
 							<td>VAISELLE (kW)</td>
-							<td>??</td>
+							<td> <?= dooneesProduit()->profi[0]->vaisselle ?> </td>
+							<td>kw</td>
+						</tr>
+					</table>
+				</div>
+				<!-- DONNES TECHNIQUES -->
+			</div>
+
+			<div id="donnes_premax" class="champ_outil">
+				<div>
+					<h5 class="">DONNEES TECHNIQUES</h5>
+				</div>
+				<!-- DONNES TECHNIQUES -->
+				<div>
+					<table class="donnees_techniques">
+						<tr class="titre_tableau">
+							<td>LONGUEUR MACHINE AVEC TUNNEL DE SECHAGE</td>
+							<td> <?= dooneesProduit()->premax[0]->longueur_machine_ts ?> </td>
+							<td>mm </td>
+						</tr>
+						<tr class="titre_tableau">
+							<td>PERFORMANCES</td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>VITESSE 1</td>
+							<td> <?= dooneesProduit()->premax[0]->vitesse_transport1 ?> </td>
+							<td>Casiers par heure</td>
+						</tr>
+						<tr>
+							<td>VITESSE 2</td>
+							<td> <?= dooneesProduit()->premax[0]->vitesse_transport2 ?> </td>
+							<td>Casiers par heure</td>
+						</tr>
+						<tr>
+							<td>VITESSE 3</td>
+							<td> <?= dooneesProduit()->premax[0]->vitesse_transport3 ?> </td>
+							<td>Casiers par heure</td>
+						</tr>
+						<tr class="titre_tableau">
+							<td>ELECTRICITE</td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>PUISSANCE INSTALLEE</td>
+							<td> <?= dooneesProduit()->premax[0]->puissance_installe ?> </td>
+							<td>kw</td>
+						</tr>
+						<tr>
+							<td>PUISSANCE CONSOMMEE</td>
+							<td> <?= dooneesProduit()->premax[0]->puissance_consommee ?> </td>
+							<td>kW/h</td>
+						</tr>
+						<tr class="titre_tableau">
+							<td>FLUIDES</td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>CONSOMMATION HORAIRE EAU FROIDE ADOUCIE 5-7°TH</td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>VITESSE 1</td>
+							<td> <?= dooneesProduit()->premax[0]->vitesse_debit1 ?> </td>
+							<td>litres par heure</td>
+						</tr>
+						<tr>
+							<td>VITESSE 2</td>
+							<td> <?= dooneesProduit()->premax[0]->vitesse_debit2 ?> </td>
+							<td>litres par heure</td>
+						</tr>
+						<tr>
+							<td>VITESSE 3</td>
+							<td> <?= dooneesProduit()->premax[0]->vitesse_debit3 ?> </td>
+							<td>litres par heure</td>
+						</tr>
+						<tr>
+							<td>REMPLISSAGE EAU CHAUDE ADOUCIE 5-7°TH</td>
+							<td> <?= dooneesProduit()->premax[0]->remplissage_eau_chaude ?> </td>
+							<td>litres</td>
+						</tr>
+						<tr class="titre_tableau">
+							<td>EXTRACTION</td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>DEBIT REJETE</td>
+							<td> <?= dooneesProduit()->premax[0]->debit_rejete ?> </td>
+							<td>m3 par heure</td>
+						</tr>
+						<tr>
+							<td>TEMPERATURE DE REJET</td>
+							<td> <?= dooneesProduit()->premax[0]->temperature_rejet ?> </td>
+							<td>°C</td>
+						</tr>
+						<tr>
+							<td>HUMIDITE RELATIVE</td>
+							<td> <?= dooneesProduit()->premax[0]->humidite_relative ?> </td>
+							<td>%</td>
+						</tr>
+						<tr>
+							<td>RATIO D'HUMIDITE</td>
+							<td> <?= dooneesProduit()->premax[0]->ratio_humidite ?> </td>
+							<td>litres par heure</td>
+						</tr>
+						<tr class="titre_tableau">
+							<td>DEGAGEMENT CALORIFIQUE</td>
+							<td></td>
+							<td></td>
+						</tr>
+						<tr>
+							<td>CHALEUR SENSIBLE (kW)</td>
+							<td> <?= dooneesProduit()->premax[0]->chaleur_sensible ?> </td>
+							<td>kw</td>
+						</tr>
+						<tr>
+							<td>CHALEUR LATENTE (kW)</td>
+							<td> <?= dooneesProduit()->premax[0]->chaleur_latente?> </td>
+							<td>kw</td>
+						</tr>
+						<tr>
+							<td>VAISELLE (kW)</td>
+							<td> <?= dooneesProduit()->premax[0]->vaisselle ?> </td>
 							<td>kw</td>
 						</tr>
 					</table>

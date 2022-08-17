@@ -47,9 +47,9 @@
             nbCouvertsSurHeureDePointe = document.getElementById('nbCouvertsSurHeureDePointe');
 
             if (duree <= 60) {
-                nbCouvertsSurHeureDePointe.value = Math.round(nbCouverts/duree*60);
+                nbCouvertsSurHeureDePointe.value = Math.round(nbCouverts / duree * 60);
             } else {
-                nbCouvertsSurHeureDePointe.value = Math.round(nbCouverts*nbconvives/100);
+                nbCouvertsSurHeureDePointe.value = Math.round(nbCouverts * nbconvives / 100);
             }
         }
 
@@ -58,6 +58,30 @@
             machineChoisie.textContent = choix;
         }
 
+        function selectionMachine(choix) {
+            machineChoisie = document.getElementById('machineChoisie');
+            text_option = choix.options[choix.selectedIndex].text;
+            document.getElementById('donnes_profi').style.display = "block";
+            document.getElementById('donnes_premax').style.display = "block";
+            document.getElementById('prix_profi').style.display = "block";
+            document.getElementById('prix_premax').style.display = "block";
+
+            if (text_option == '-C20' || text_option == '-C25' || text_option == '-CHP' || text_option == '-FHP' || text_option.includes('CONTACTEZ HOBART')) {
+                machineChoisie.textContent = 'Aucun produit choisi';
+            } else {
+                machineChoisie.textContent = text_option;
+                if (choix.value == 1) {
+                    document.getElementById('donnes_premax').style.display = "none";
+                    document.getElementById('prix_premax').style.display = "none";
+
+                } else {
+                    document.getElementById('donnes_profi').style.display = "none";
+                    document.getElementById('prix_profi').style.display = "none";
+                }
+            }
+
+            // alert(choix.options[choix.selectedIndex].text);
+        }
     </script>
 </head>
 
