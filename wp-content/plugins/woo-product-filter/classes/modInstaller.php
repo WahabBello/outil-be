@@ -27,7 +27,7 @@ class ModInstallerWpf {
 						FrameWpf::_()->getTable('modules')->delete(array('code' => $module['code']));
 					}
 					if ('license' != $module['code']) {
-						$module['active'] = 0;
+						$module['active'] = FrameWpf::_()->getTable('modules')->get('active', array('code' => 'access'), '', 'one' ) == 1 ? 1 : 0;
 					}
 					FrameWpf::_()->getTable('modules')->insert($module);
 					self::_runModuleInstall($module);

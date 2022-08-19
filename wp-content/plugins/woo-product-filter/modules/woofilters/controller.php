@@ -18,7 +18,7 @@ class WoofiltersControllerWpf extends ControllerWpf {
 			$titleUrl = '<a href="' . esc_url($this->getModule()->getEditLink( $id )) . '">' . esc_html($row['title']) . ' <i class="fa fa-fw fa-pencil"></i></a> <a data-filter-id="' . $id . '" class="wpfDuplicateFilter" href="" title="' . esc_attr__('Duplicate filter', 'woo-product-filter') . '"><i class="fa fa-fw fa-clone"></i></a>';
 
 			$data[$key]['shortcode'] = $shortcode;
-			$data[$key]['title'] = $titleUrl;
+			$data[$key]['title'] = DispatcherWpf::applyFilters('prepareFilterListTitle', $titleUrl, $row);
 		}
 		return $data;
 	}
@@ -130,9 +130,15 @@ class WoofiltersControllerWpf extends ControllerWpf {
 		$curUrl = $params['currenturl'];
 		$queryvars['posts_per_page'] = isset($filterSettings['count_product_shop']) && !empty($filterSettings['count_product_shop']) ? $filterSettings['count_product_shop'] : $queryvars['posts_per_page'];
 		$use_category_filtration = isset($filterSettings['use_category_filtration']) ? $filterSettings['use_category_filtration'] : 1;
-		$onlyFilterRecount = isset($params['only_recound']);
+		$onlyStatistics = isset($params['only_statistics']);
+		$onlyFilterRecount = $onlyStatistics || isset($params['only_recound']);
 		$synchroFilterId = !empty($params['synchro_filter_id']) ? $params['synchro_filter_id'] : '';
-
+		
+		if ($onlyStatistics) {
+			$filterSettings['only_have_found'] = true;
+			$filterSettings['filter_recount'] = 0;
+		}
+		
 		foreach ($filtersDataBackend as $key => $filteringSettings) {
 			if ('wpfCategory' == $filteringSettings['id']) {
 				$filterOrder = array_search($filteringSettings['uniqId'], array_column($generalSettings, 'uniqId'));
@@ -253,7 +259,8 @@ class WoofiltersControllerWpf extends ControllerWpf {
 		$removeActions = isset($filterSettings['remove_actions']) && $filterSettings['remove_actions'];
 		$filteringVariations = isset($filterSettings['filtering_by_variations']) ? $filterSettings['filtering_by_variations'] : false;
 		$displayProductVariations = $filteringVariations && isset($filterSettings['display_product_variations']) ? $filterSettings['display_product_variations'] : false;
-
+		$wpfFId = !empty($filterSettings['wpf_fid']) ? $filterSettings['wpf_fid'] : '';
+		
 		if ($removeActions) {
 			remove_all_filters('posts_orderby');
 			remove_all_filters('pre_get_posts');
@@ -274,11 +281,20 @@ class WoofiltersControllerWpf extends ControllerWpf {
 			$args = DispatcherWpf::applyFilters('beforeFilterExistsTerms', $args, $filterSettings, $urlQuery);
 		}
 		$filterItems = $module->getFilterExistsItems($args, $taxonomies, $calcParentCategory, $categoryPageId, $generalSettings, true , $filterSettings, array(), $urlQuery);
+		if ($onlyStatistics) {
+			$isFound = empty($filterItems['have_posts']) ? 0 : 1;
+			DispatcherWpf::doAction('saveStatistics', $isFound);
+			return $res->ajaxExec();
+		}
+		
 		if (false !== $filterItems) {
 			$jscript .=	'<script type="text/javascript">wpfShowHideFiltersAtts(' . json_encode($filterItems['exists']) . ', ' . json_encode($filterItems['existsUsers']) . ', "' . $synchroFilterId . '");</script>';
 			if ($recount) {
 				$jscript .=	'<script type="text/javascript">wpfChangeFiltersCount(' . json_encode($filterItems['exists']) . ', "' . $synchroFilterId . '");</script>';
 			}
+		}
+		if (!empty($wpfFId)) {
+			$jscript .= '<script type="text/javascript">wpfDoActionsAfterLoad('.$wpfFId .',' . ( empty($filterItems) || empty($filterItems['have_posts']) ? 0 : 1 ) . ');</script>';
 		}
 
 		if (!$onlyFilterRecount) {

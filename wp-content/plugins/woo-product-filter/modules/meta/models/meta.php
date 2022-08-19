@@ -319,7 +319,8 @@ class MetaModelWpf extends ModelWpf {
 
 							break;
 						case 1:
-							$query = $insert . 'val_dec) SELECT post_id,' . $selectType . $keyId . ',CAST(meta_value AS DECIMAL(19,4))' . $from . $whereMeta;
+							$addWhere = ( in_array( $keyName, array( '_price', '_sale_price' ), true ) ) ? '' : ' AND m.meta_value <> ""';
+							$query = $insert . 'val_dec) SELECT post_id,' . $selectType . $keyId . ',CAST(REPLACE(meta_value, ",", ".") AS DECIMAL(19,4))' . $from . $whereMeta . $addWhere;
 							break;
 						case 2:
 							$query = $insert . 'val_int) SELECT post_id,' . $selectType . $keyId . ',CAST(meta_value AS SIGNED)' . $from . $whereMeta;

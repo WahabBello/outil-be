@@ -16,7 +16,7 @@ class Woofilters_ElementorWidgetWpf extends Widget_Base {
 		if (!$isWooCommercePluginActivated) {
 			return;
 		}
-		
+
 		if (static::$scriptsLoaded) {
 			return;
 		}
@@ -132,7 +132,7 @@ class Woofilters_ElementorWidgetWpf extends Widget_Base {
 		return true;
 	}
 	
-	protected function _register_controls() {
+	protected function register() {
 		if (!is_admin()) {
 			return false;
 		}

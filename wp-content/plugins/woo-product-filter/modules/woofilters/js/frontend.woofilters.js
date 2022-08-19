@@ -5,6 +5,7 @@
 		this.noWoo = this.$obj.checkNoWooPage();
 		this.readyFuncs = ['.berocket_load_more_preload', 'woocommerce-product-bundle-hide', 'show_variation', '.variations_form', 'yith_infs_start', 'flatsome_infinite_scroll'];
 		this.isSafari = navigator.vendor && navigator.vendor.indexOf('Apple') > -1 && navigator.userAgent && navigator.userAgent.indexOf('CriOS') == -1 && navigator.userAgent.indexOf('FxiOS') == -1;
+		this.disableScrollJs = true;
 		return this.$obj;
 	}
 
@@ -12,6 +13,7 @@
 		var _thisObj = this.$obj;
 		app.wpfNewUrl = '';
 		_thisObj.filterClick = true;
+		_thisObj.filteringId = 0;
 
 		_thisObj.setCurrentLocation();
 		_thisObj.filterLoadTypes = [];
@@ -72,7 +74,7 @@
 	WpfFrontendPage.prototype.resizeWindow = (function() {
 		var _thisObj = this.$obj;
 		_thisObj.filterOptionsForDevices();
-		jQuery( window ).resize(function() {
+		jQuery( window ).on('resize', function() {
 			_thisObj.filterOptionsForDevices();
 		});
 	});
@@ -369,6 +371,7 @@
 
 		var redirectOnlyClick = Number(settings.settings.redirect_only_click),
 		    autoUpdateFilter  = Number(settings.settings.auto_update_filter),
+			loaderEnable  = Number(settings.settings.filter_loader_icon_onload_enable),
 			isButton = ( mainWrapper.find('.wpfFilterButton').length > 0 ),
 			isCheckbox = _this.attr('type') == 'checkbox',
 			redirectLink = isCheckbox ? _this.closest('li' ).attr('data-link') : _this.find('option:selected').attr('data-link');
@@ -384,10 +387,15 @@
 		if (isButton) {
 			// if there is a button and autoUpdateFilter is selected, then we only change the filter.
 			// If redirectOnlyClick is selected, then we change the filter and products, but do not redirect until the button is clicked
+
 			if (autoUpdateFilter || redirectOnlyClick) {
+				if (loaderEnable) {
+					mainWrapper.find('.wpfLoaderLayout').show();
+				}
 				_thisObj.filterClick = false;
 				_thisObj.filtering(mainWrapper, false, redirectLink);
 			}
+
 		} else {
 			if (typeof (_thisObj.beforeFilteringPro) === 'function') {
 				_thisObj.beforeFilteringPro(mainWrapper);
@@ -981,13 +989,17 @@
 		}
 		
 		_thisObj.isSynchro = false;
+		_thisObj.isStatistics = false;
 
 		if ($filterWrapper.length !== 0) {
+			_thisObj.filteringId++;
+			
 			var $filtersDataBackend = [],
 				$filtersDataFrontend = [],
 				noWooPage = _thisObj.noWoo,
 				$generalSettings = _thisObj.getFilterMainSettings($filterWrapper);
 			_thisObj.isSynchro = $generalSettings['settings']['use_filter_synchro'] && ($generalSettings['settings']['use_filter_synchro'] == '1') ? true : false;
+			_thisObj.isStatistics = $filterWrapper.attr('data-is-stats') == 1;
 			
 			if(_thisObj.isSynchro) {
 				_thisObj.syncronizeFilters($filterWrapper);
@@ -1006,6 +1018,9 @@
 					logic = $filter.attr('data-query-logic'),
 					isGroup = false,
 					cgIndex = null;
+				if(_thisObj.isStatistics && typeof (_thisObj.prepareStatisticsData) == 'function') {
+					_thisObj.prepareStatisticsData($filter, allSettings);
+				}
 
 				try {
 					var order = JSON.parse(_thisObj.getFilterMainSettings(wrapper).settings.filters.order);
@@ -1089,6 +1104,7 @@
 				$queryVarsSettings = JSON.parse($queryVars);
 
 			var $filterSettings = $generalSettings === false ? {} : {
+				'wpf_fid': _thisObj.filteringId,
 				'filter_recount': $generalSettings['settings']['filter_recount'] && ($generalSettings['settings']['filter_recount'] == '1') ? true : false,
 				'filter_recount_price': $generalSettings['settings']['filter_recount_price'] && ($generalSettings['settings']['filter_recount_price'] == '1') ? true : false,
 				'text_no_products': $generalSettings['settings']['text_no_products'] ? $generalSettings['settings']['text_no_products'] : '',
@@ -1196,6 +1212,10 @@
 				}
 			} else {
 				if ($generalSettings && $generalSettings.settings.enable_ajax !== '1') {
+					if (_thisObj.isStatistics) {
+						var requestData =_thisObj.getAjaxRequestData($filtersDataBackend, $queryVars, $filterSettings, $generalSettings, $shortcodeAttr, $woocommerceSettings);
+						wpfDoActionsAfterLoad(_thisObj.filteringId, -1, requestData);
+					}
 					location.reload();
 					return;
 				}
@@ -1212,28 +1232,33 @@
 					jQuery('.wpfMainWrapper:not(#'+_thisObj.currentLoadId+')').each(function(){
 						var $synchroWrapper = jQuery(this);
 						$generalSettings = _thisObj.getFilterMainSettings($synchroWrapper);
-						$generalSettings = $generalSettings ? $generalSettings['settings']['filters']['order'] : [];
-						var typeSettings = typeof $generalSettings;
-						if (typeSettings == 'undefined') $generalSettings = '[]';
-						else if (typeSettings != 'string') $generalSettings = JSON.stringify($generalSettings);
-						
-						var requestData = {
-							mod: 'woofilters',
-							action: 'filtersFrontend',
-							filtersDataBackend: JSON.stringify($filtersDataBackend),
-							queryvars: $queryVars,
-							filterSettings: JSON.stringify($filterSettings),
-							generalSettings: $generalSettings,
-							shortcodeAttr: $shortcodeAttr,
-							woocommerceSettings: JSON.stringify($woocommerceSettings),
-							currenturl: window.location.href,
-						};
+						var requestData =_thisObj.getAjaxRequestData($filtersDataBackend, $queryVars, $filterSettings, $generalSettings, $shortcodeAttr, $woocommerceSettings);
+
 						_thisObj.ajaxOnlyRecount(requestData, $synchroWrapper.attr('id'));
 			
 					});
 				}
 			}
 		}
+	});
+	
+	WpfFrontendPage.prototype.getAjaxRequestData = (function ($filtersDataBackend, $queryVars, $filterSettings, $generalSettings, $shortcodeAttr, $woocommerceSettings) {
+		$generalSettings = $generalSettings ? $generalSettings['settings']['filters']['order'] : [];
+		var typeSettings = typeof $generalSettings;
+		if (typeSettings == 'undefined') $generalSettings = '[]';
+		else if (typeSettings != 'string') $generalSettings = JSON.stringify($generalSettings);
+						
+		return {
+			mod: 'woofilters',
+			action: 'filtersFrontend',
+			filtersDataBackend: JSON.stringify($filtersDataBackend),
+			queryvars: $queryVars,
+			filterSettings: JSON.stringify($filterSettings),
+			generalSettings: $generalSettings,
+			shortcodeAttr: $shortcodeAttr,
+			woocommerceSettings: JSON.stringify($woocommerceSettings),
+			currenturl: window.location.href,
+		};
 	});
 
 	WpfFrontendPage.prototype.createOverlay = (function () {
@@ -1622,20 +1647,12 @@
 			location.reload();
 			return;
 		}
-		var ajax_leave_products = $generalSettings['settings'] && $generalSettings['settings']['ajax_leave_products'] == '1'
-
-		if (typeof $generalSettings === 'undefined') {
-			$generalSettings = '[]';
-		} else {
+		var ajax_leave_products = $generalSettings && $generalSettings['settings'] && $generalSettings['settings']['ajax_leave_products'] == '1'
+		
+		if (typeof $generalSettings !== 'undefined') {
 			$wrapperSettings = $generalSettings['settings'];
-			$generalSettings = $generalSettings['settings']['filters']['order'];
-
-			//dont remove
-			var typeSettings = typeof $generalSettings;
-			if (typeSettings == 'undefined') $generalSettings = '[]';
-			else if (typeSettings != 'string') $generalSettings = JSON.stringify($generalSettings);
 		}
-
+		
 		var customListSelector = $filterSettings['product_list_selector'],
 			productListSelector = _thisObj.fixSelector(customListSelector, _thisObj.defaultProductSelector),
 			productContainerSelector = _thisObj.fixSelector($filterSettings['product_container_selector'], ''),
@@ -1670,23 +1687,12 @@
 			if (!_thisObj.filterClick && $filterSettings.auto_update_filter && !$filterSettings.redirect_only_click) {
 				onlyRecount = true;
 			}
-			$filterSettings = JSON.stringify($filterSettings);
 		}
-
-		var requestData = {
-			mod: 'woofilters',
-			action: 'filtersFrontend',
-			filtersDataBackend: JSON.stringify($filtersDataBackend),
-			queryvars: $queryVars,
-			filterSettings: $filterSettings,
-			generalSettings: $generalSettings,
-			shortcodeAttr: $shortcodeAttr,
-			woocommerceSettings: JSON.stringify($woocommerceSettings),
-			currenturl: window.location.href,
-		};
+		
+		var requestData =_thisObj.getAjaxRequestData($filtersDataBackend, $queryVars, $filterSettings, $generalSettings, $shortcodeAttr, $woocommerceSettings);
 
 		if (onlyRecount) {
-			_thisObj.ajaxOnlyRecount(requestData);
+			_thisObj.ajaxOnlyRecount(requestData, _thisObj.currentLoadId, $wrapperSettings);
 			return;
 		} else if (forceThemeTemplates || _thisObj.filterLoadTypes[_thisObj.currentLoadId] == 'force') {
 			_thisObj.ajaxForceThemeTemplates(productContainerSelector, productListSelector, requestData, $wrapperSettings);
@@ -1827,9 +1833,12 @@
 			isContainer = (productContainerSelector != '');
 
 		_thisObj.filterLoadTypes[_thisObj.currentLoadId] = 'force';
+		if ($wrapperSettings.recalculate_filters !== '1') {
+			_thisObj.ajaxOnlyRecount(requestData);
+		}
 		jQuery.ajax({
 			type: "GET",
-			url: curUrl + (curUrl.indexOf('?') == -1 ? '?' : '&') + 'wpf_skip=1',
+			url: curUrl + (curUrl.indexOf('?') == -1 ? '?' : '&') + 'wpf_skip=1&wpf_fid=' + _thisObj.filteringId,
 			cache: false,
 			dataType: 'html',
 			success: function(data){
@@ -1846,10 +1855,14 @@
 				var pageBlock = jQuery(foundContainer ? productContainerSelector : productListSelector);
 				if (block.length == 0 || pageBlock.length == 0) {
 					_thisObj.filterLoadTypes[_thisObj.currentLoadId] = 'reload';
+					if ($wrapperSettings.recalculate_filters === '1') {
+						var existsTermsJS = jQuery(data).find('.wpfExistsTermsJS').html();
+						_thisObj.setAjaxJScript(existsTermsJS);
+					}
 					location.reload();
 					return;
 				}
-				_thisObj.currentProductBlock = pageBlock.selector;
+				_thisObj.currentProductBlock = (typeof pageBlock.selector !== 'undefined') ? pageBlock.selector : productListSelector ;
 
 				block.each(function (index, value) {
 					var blockWhere = pageBlock.eq(index),
@@ -1859,7 +1872,7 @@
 						blockWhere = blockWhere.parent();
 						blockWhat = blockWhat.parent();
 					}
-					blockWhere.html(blockWhat.html().replace(/wpf_skip=1/g, '').replace(/&amp;&amp;/g, '&amp;'));
+					blockWhere.html(blockWhat.html().replace(/wpf_skip=1/g, '').replace(/wpf_fid=[0-9]*/g, '').replace(/&amp;&amp;/g, '&amp;'));
 
 					// if pagination is not in the block to be replaced, we will try to find and replace it
 					var paginationPageBlock = jQuery(blockWhere).find('.woocommerce-pagination');
@@ -1867,7 +1880,7 @@
 						var paginationPage = jQuery('.woocommerce-pagination');
 						var paginationResponse = jQuery(data).find('.woocommerce-pagination');
 						if (paginationResponse.length) {
-							paginationResponse = paginationResponse.eq(0).html().replace(/wpf_skip=1/g, '').replace(/&amp;&amp;/g, '&amp;');
+							paginationResponse = paginationResponse.eq(0).html().replace(/wpf_skip=1/g, '').replace(/wpf_fid=[0-9]*/g, '').replace(/&amp;&amp;/g, '&amp;');
 							if (paginationPage.length) {
 								paginationPage.html(paginationResponse);
 							} else {
@@ -1899,25 +1912,35 @@
     		}
 		});
 
-		if ($wrapperSettings.recalculate_filters !== '1') {
-			_thisObj.ajaxOnlyRecount(requestData);
-		}
-
 		return false;
 	});
 
-	WpfFrontendPage.prototype.ajaxOnlyRecount = (function (requestData, filterId) {
+	WpfFrontendPage.prototype.ajaxOnlyRecount = (function (requestData, filterId, $wrapperSettings) {
 		var _thisObj = this.$obj;
+
 		if (!_thisObj.currentAjaxJSLoaded && requestData) {
 			requestData['only_recound'] = 1;
-			if (typeof (filterId) !=  'undefined') requestData['synchro_filter_id'] = filterId;
+
+			if (typeof filterId !==  'undefined') {
+				requestData['synchro_filter_id'] = filterId;
+			}
+
 			jQuery.sendFormWpf({
 				data: requestData,
 				onSuccess: function (res) {
+
+					if (typeof $wrapperSettings !== 'undefined'
+						&& typeof $wrapperSettings.filter_loader_icon_onload_enable !== 'undefined'
+						&& Number($wrapperSettings.filter_loader_icon_onload_enable)) {
+						hideFilterLoader(jQuery('#' + filterId));
+					}
+
 					if (!res.error) {
+
 						if ('jscript' in res.data) {
 							_thisObj.setAjaxJScript(res.data['jscript'], filterId);
 						}
+
 					}
 				}
 			});
@@ -1991,7 +2014,9 @@
 	WpfFrontendPage.prototype.runReadyList = (function(){
 		if (window.readyList && readyList.length) {
 			var _thisObj = this.$obj;
-			jQuery(window).off("yith_infs_start").off("scroll touchstart");
+			if (_thisObj.disableScrollJs) {
+				jQuery(window).off("yith_infs_start").off("scroll touchstart");
+			}
 			jQuery(window.readyList).each(function(i, el) {
 				var strFunc = el['a'][0].toString();
 				if (strFunc.indexOf('WpfFrontendPage') == -1 && strFunc.indexOf('.ajaxComplete(') == -1) {
@@ -2223,6 +2248,7 @@
 		optionsArray['backend'] = options;
 		optionsArray['frontend'] = frontendOptions;
 		optionsArray['selected'] = selectedOptions;
+		optionsArray['stats'] = [[minPrice, maxPrice]];
 
 		return optionsArray;
 	});
@@ -2233,6 +2259,7 @@
 			options = [],
 			frontendOptions = [],
 			selectedOptions = {'is_one': true, 'list': []},
+			statistics = [],
 			i = 0,
 			rate = $filter.data('rate');
 
@@ -2282,9 +2309,16 @@
 				return minPrice + ',' + maxPrice;
 			});
 		}
+		
+		if (options.length) {
+			statistics = options.map(function (elem) {
+				return elem.split(",");
+			});
+		}
 		optionsArray['backend'] = options;
 		optionsArray['frontend'] = frontendOptions;
 		optionsArray['selected'] = selectedOptions;
+		optionsArray['stats'] = statistics;
 
 		return optionsArray;
 	});
@@ -2311,6 +2345,7 @@
 			var getParams = $filter.attr('data-get-attribute');
 			frontendOptions[getParams] = value;
 			selectedOptions['list'][0] = name;
+			optionsArray['stats'] = [name];
 		}
 		if ($filter.data('first-instock') == '1') {
 			frontendOptions['oistock'] = 1;
@@ -2329,6 +2364,7 @@
 			options = [],
 			filterType = $filter.attr('data-display-type'),
 			selectedOptions = {'is_one': (filterType === 'dropdown'), 'list': []},
+			statistics = [],
 			i = 0;
 
 		//options for backend (filtering)
@@ -2338,15 +2374,19 @@
 			if(value != '') {
 				options[i] = value;
 				frontendOptions[i] = value;
-				selectedOptions['list'][i] = option.html();
+				var name = option.html();
+				selectedOptions['list'][i] = name;
+				statistics.push(name);
 			}
 		} else {
 			$filter.find('input:checked').each(function () {
 				var li = jQuery(this).closest('li'),
-					slug = li.attr('data-term-slug');
+					slug = li.attr('data-term-slug'),
+					name = li.find('.wpfFilterTaxNameWrapper').length ? li.find('.wpfFilterTaxNameWrapper').html() : li.find('.wpfValue').html();
 				options[i] = slug;
 				frontendOptions[i] = slug;
-				selectedOptions['list'][li.attr('data-term-id')] = li.find('.wpfValue').html();
+				selectedOptions['list'][li.attr('data-term-id')] = name;
+				statistics.push(name);
 				i++;
 			});
 		}
@@ -2359,6 +2399,7 @@
 		optionsArray['frontend']['taxonomy'] = getParams;
 		optionsArray['frontend']['settings'] = frontendOptions;
 		optionsArray['selected'] = selectedOptions;
+		optionsArray['stats'] = statistics;
 
 		return optionsArray;
 	});
@@ -2371,6 +2412,7 @@
 			filterType = $filter.attr('data-display-type'),
 			useSlugs = $filter.attr('data-use-slugs') == '1',
 			selectedOptions = {'is_one': (filterType == 'list' || filterType == 'dropdown'), 'list': []},
+			statistics = [],
 			i = 0;
 
 		//options for backend (filtering)
@@ -2380,7 +2422,9 @@
 				value = option.val();
 			if(value != '') {
 				options[i] = value;
-				selectedOptions['list'][id] = _thisObj.getClearLabel(option.html(), $filter.hasClass('wpfShowCount'));
+				var name = _thisObj.getClearLabel(option.html(), $filter.hasClass('wpfShowCount'));
+				selectedOptions['list'][id] = name;
+				statistics.push(name);
 			}
 			frontendOptions[i] = (useSlugs ? option.attr('data-term-slug') : id);
 		} else if(filterType === 'mul_dropdown'){
@@ -2389,7 +2433,9 @@
 					id = option.attr('data-term-id');
 				options[i] = option.val();
 				frontendOptions[i] = (useSlugs ? option.attr('data-term-slug') : id);
-				selectedOptions['list'][id] = _thisObj.getClearLabel(option.html(), $filter.hasClass('wpfShowCount'));
+				var name = _thisObj.getClearLabel(option.html(), $filter.hasClass('wpfShowCount'));
+				selectedOptions['list'][id] = name;
+				statistics.push(name);
 				i++;
 			});
 		} else {
@@ -2468,7 +2514,9 @@
 						options[i] = id;
 						frontendOptions[i] = (useSlugs ? liCurent.attr('data-term-slug') : id);
 					}
-					selectedOptions['list'][id] = liCurent.find('.wpfValue').html();
+					var name = liCurent.find('.wpfValue').html();
+					selectedOptions['list'][id] = name;
+					statistics.push(liCurent.find('.wpfFilterTaxNameWrapper:first').length ? liCurent.find('.wpfFilterTaxNameWrapper:first').html() : name);
 					i++;
 				}
 			});
@@ -2491,6 +2539,7 @@
 		optionsArray['frontend']['taxonomy'] = getParams;
 		optionsArray['frontend']['settings'] = frontendOptions;
 		optionsArray['selected'] = selectedOptions;
+		optionsArray['stats'] = statistics;
 
 		return optionsArray;
 	});
@@ -2506,6 +2555,7 @@
 			frontendOptions = [],
 			filterType = $filter.attr('data-display-type'),
 			selectedOptions = {'is_one': (filterType == 'dropdown'), 'list': []},
+			statistics = [],
 			withCount = $filter.hasClass('wpfShowCount'),
 			i = 0;
 
@@ -2516,14 +2566,18 @@
 			if(value != '') {
 				options[i] = value;
 				frontendOptions[i] = option.attr('data-slug');
-				selectedOptions['list'][option.attr('data-term-id')] = _thisObj.getClearLabel(option.html(), withCount);
+				var name = _thisObj.getClearLabel(option.html(), withCount);
+				selectedOptions['list'][option.attr('data-term-id')] = name;
+				statistics.push(name);
 			}
 		} else if (filterType === 'mul_dropdown'){
 			$filter.find(':selected').each(function () {
 				var option = jQuery(this);
 				options[i] = option.val();
 				frontendOptions[i] = option.attr('data-slug');
-				selectedOptions['list'][option.attr('data-term-id')] = _thisObj.getClearLabel(option.html(), withCount);
+				var name = _thisObj.getClearLabel(option.html(), withCount);
+				selectedOptions['list'][option.attr('data-term-id')] = name;
+				statistics.push(name);
 				i++;
 			});
 		} else {
@@ -2532,7 +2586,9 @@
 					id = li.attr('data-term-id');
 				options[i] = id;
 				frontendOptions[i] = li.attr('data-term-slug');
-				selectedOptions['list'][id] = li.find('.wpfValue').html();
+				var name = li.find('.wpfValue').html();
+				selectedOptions['list'][id] = name;
+				statistics.push(li.find('.wpfFilterTaxNameWrapper').length ? li.find('.wpfFilterTaxNameWrapper').html() : name);
 				i++;
 			});
 		}
@@ -2545,6 +2601,7 @@
 		optionsArray['frontend']['taxonomy'] = getParams;
 		optionsArray['frontend']['settings'] = frontendOptions;
 		optionsArray['selected'] = selectedOptions;
+		optionsArray['stats'] = statistics;
 
 		return optionsArray;
 	});
@@ -2556,6 +2613,7 @@
 			frontendOptions = [],
 			filterType = $filter.attr('data-display-type'),
 			selectedOptions = {'is_one': (filterType == 'dropdown'), 'list': []},
+			statistics = [],
 			withCount = $filter.hasClass('wpfShowCount'),
 			i = 0,
 			proFilterType = [
@@ -2570,14 +2628,18 @@
 			if (value != '') {
 				options[i] = value;
 				frontendOptions[i] = option.attr('data-slug');
-				selectedOptions['list'][option.attr('data-term-id')] = _thisObj.getClearLabel(option.html(), withCount);
+				var name = _thisObj.getClearLabel(option.html(), withCount);
+				selectedOptions['list'][option.attr('data-term-id')] = name;
+				statistics.push(name);
 			}
 		} else if (filterType === 'mul_dropdown'){
 			$filter.find(':selected').each(function () {
 				var option = jQuery(this);
 				options[i] = option.val();
 				frontendOptions[i] = option.attr('data-slug');
-				selectedOptions['list'][option.attr('data-term-id')] = _thisObj.getClearLabel(option.html(), withCount);
+				var name = _thisObj.getClearLabel(option.html(), withCount);
+				selectedOptions['list'][option.attr('data-term-id')] = name;
+				statistics.push(name);
 				i++;
 			});
 		} else if (jQuery.inArray(filterType, proFilterType) == -1 ) {
@@ -2586,7 +2648,9 @@
 					id = li.attr('data-term-id');
 				options[i] = id;
 				frontendOptions[i] = li.attr('data-term-slug');
-				selectedOptions['list'][id] = li.find('.wpfValue').html();
+				var name = li.find('.wpfValue').html();
+				selectedOptions['list'][id] = name;
+				statistics.push(li.find('.wpfFilterTaxNameWrapper').length ? li.find('.wpfFilterTaxNameWrapper').html() : name);
 				i++;
 			});
 		}
@@ -2595,6 +2659,7 @@
 			options : options,
 			frontendOptions : frontendOptions,
 			selectedOptions : selectedOptions,
+			statistics : statistics,
 			i : i,
 		}
 
@@ -2611,6 +2676,7 @@
 		optionsArray['frontend']['taxonomy'] = getParams;
 		optionsArray['frontend']['settings'] = data.frontendOptions;
 		optionsArray['selected'] = data.selectedOptions;
+		optionsArray['stats'] = data.statistics;
 
 		return optionsArray;
 	});
@@ -2622,6 +2688,7 @@
 			frontendOptions = [],
 			filterType = $filter.attr('data-display-type'),
 			selectedOptions = {'is_one': (filterType == 'dropdown'), 'list': []},
+			statistics = [],
 			i = 0;
 
 		//options for backend (filtering)
@@ -2631,7 +2698,9 @@
 					id = li.attr('data-term-id');
 				options[i] = id;
 				frontendOptions[i] = li.attr('data-term-slug');
-				selectedOptions['list'][id] = li.find('.wpfValue').html();
+				var name = li.find('.wpfValue').html();
+				selectedOptions['list'][id] = name;
+				statistics.push(li.find('.wpfFilterTaxNameWrapper').length ? li.find('.wpfFilterTaxNameWrapper').html() : name);
 				i++;
 			});
 		} else if (filterType === 'mul_dropdown'){
@@ -2639,7 +2708,9 @@
 				var option = jQuery(this);
 				options[i] = option.val();
 				frontendOptions[i] = option.attr('data-slug');
-				selectedOptions['list'][option.attr('data-term-id')] = _thisObj.getClearLabel(option.html());
+				var name = _thisObj.getClearLabel(option.html());
+				selectedOptions['list'][option.attr('data-term-id')] = name;
+				statistics.push(name);
 				i++;
 			});
 		} else if (filterType === 'dropdown'){
@@ -2648,7 +2719,9 @@
 			options[i] = value;
 			if(value != '') {
 				frontendOptions[i] = option.attr('data-slug');
-				selectedOptions['list'][option.attr('data-term-id')] = option.html();
+				var name = option.html();
+				selectedOptions['list'][option.attr('data-term-id')] = name;
+				statistics.push(name);
 			}
 		}
 		optionsArray['backend'] = options;
@@ -2660,6 +2733,7 @@
 		optionsArray['frontend']['taxonomy'] = getParams;
 		optionsArray['frontend']['settings'] = frontendOptions;
 		optionsArray['selected'] = selectedOptions;
+		optionsArray['stats'] = statistics;
 
 		return optionsArray;
 	});
@@ -2670,6 +2744,7 @@
 			frontendOptions = [],
 			filterType = $filter.attr('data-display-type'),
 			selectedOptions = {'is_one': (filterType == 'dropdown'), 'list': []},
+			statistics = [],
 			i = 0;
 
 		$filter.find('input:checked').each(function () {
@@ -2677,7 +2752,9 @@
 				id = li.attr('data-term-id');
 			options[i] = id;
 			frontendOptions[i] = li.attr('data-term-slug');
-			selectedOptions['list'][id] = li.find('.wpfValue').html();
+			var name = li.find('.wpfValue').html();
+			selectedOptions['list'][id] = name;
+			statistics.push(li.find('.wpfFilterTaxNameWrapper').length ? li.find('.wpfFilterTaxNameWrapper').html() : name);
 			i++;
 		});
 		optionsArray['backend'] = options;
@@ -2689,6 +2766,7 @@
 		optionsArray['frontend']['taxonomy'] = getParams;
 		optionsArray['frontend']['settings'] = frontendOptions;
 		optionsArray['selected'] = selectedOptions;
+		optionsArray['stats'] = statistics;
 
 		return optionsArray;
 	});
@@ -2699,6 +2777,7 @@
 			frontendOptions = [],
 			filterType = $filter.attr('data-display-type'),
 			selectedOptions = {'is_one': (filterType == 'dropdown'), 'list': []},
+			statistics = [],
 			i = 0;
 
 		$filter.find('input:checked').each(function () {
@@ -2706,7 +2785,9 @@
 				id = li.attr('data-term-id');
 			options[i] = id;
 			frontendOptions[i] = li.attr('data-term-slug');
-			selectedOptions['list'][id] = li.find('.wpfValue').html();
+			var name = li.find('.wpfValue').html();
+			selectedOptions['list'][id] = name;
+			statistics.push(li.find('.wpfFilterTaxNameWrapper').length ? li.find('.wpfFilterTaxNameWrapper').html() : name);
 			i++;
 		});
 		optionsArray['backend'] = options;
@@ -2718,6 +2799,7 @@
 		optionsArray['frontend']['taxonomy'] = getParams;
 		optionsArray['frontend']['settings'] = frontendOptions;
 		optionsArray['selected'] = selectedOptions;
+		optionsArray['stats'] = statistics;
 
 		return optionsArray;
 	});
@@ -2728,6 +2810,7 @@
 			options = [],
 			filterType = $filter.attr('data-display-type'),
 			selectedOptions = {'is_one': true, 'list': []},
+			statistics = [],
 			i = 0;
 
 		//options for backend (filtering)
@@ -2736,14 +2819,18 @@
 				rating = input.val();
 			options[i] = rating;
 			frontendOptions[i] = rating;
-			selectedOptions['list'][i] = input.attr('data-label');
+			var name = input.attr('data-label');
+			selectedOptions['list'][i] = name;
+			statistics.push(name);
 		}else if(filterType == 'list'){
 			$filter.find('input:checked').each(function () {
 				var li = jQuery(this).closest('li'),
 					id = li.attr('data-term-id');
 				options[i] = id;
 				frontendOptions[i] = li.attr('data-term-slug');
-				selectedOptions['list'][id] = li.find('.wpfValue').html();
+				var name = li.find('.wpfValue').html();
+				selectedOptions['list'][id] = name;
+				statistics.push(li.find('.wpfFilterTaxNameWrapper').length ? li.find('.wpfFilterTaxNameWrapper').html() : name);
 				i++;
 			});
 		}else if(filterType == 'dropdown'){
@@ -2752,7 +2839,9 @@
 			options[i] = value;
 			if(value != '') {
 				frontendOptions[i] = option.attr('data-slug');
-				selectedOptions['list'][option.attr('data-term-id')] = option.html();
+				var name = option.html();
+				selectedOptions['list'][option.attr('data-term-id')] = name;
+				statistics.push(name);
 			}
 		}
 		optionsArray['backend'] = options;
@@ -2764,6 +2853,7 @@
 		optionsArray['frontend']['taxonomy'] = getParams;
 		optionsArray['frontend']['settings'] = frontendOptions;
 		optionsArray['selected'] = selectedOptions;
+		optionsArray['stats'] = statistics;
 
 		return optionsArray;
 	});
@@ -3477,5 +3567,10 @@ function heightIdenticalInRow(selector) {
 	});
 	if (elementsHeight[rowIndex]) {
 		setMaxHeight(elementsHeight[rowIndex]);
+	}
+}
+function wpfDoActionsAfterLoad (fid, isFound, requestData) {
+	if (typeof (window.wpfFrontendPage.saveStatistics) == 'function') {
+		window.wpfFrontendPage.saveStatistics(fid, isFound, requestData);
 	}
 }

@@ -713,3 +713,9 @@ input.wpfSmallInput{
     color: #03a9f4;
     font-size: 10px;
 }
+.wpf-action-off {
+	color: red !important;
+}
+.wpf-action-on {
+	color: green !important;
+}

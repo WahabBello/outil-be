@@ -34,7 +34,14 @@
 			<?php
 			$options = array();
 			$strMove = '';
-			foreach ($this->getModel('woofilters')->getSortByFilterLabels(json_decode($this->settings['settings']['filters']['order'])) as $key => $value) {
+
+			if (isset($this->settings['settings']['filters']['order'])) {
+				$labels = $this->getModel('woofilters')->getSortByFilterLabels(json_decode($this->settings['settings']['filters']['order']));
+			} else {
+				$labels = array();
+			}
+
+			foreach ($labels as $key => $value) {
 				$strMove = '<div class="wpfMoveWrap' . $classMobile . '"><a href="#" class="wpfMove wpfMoveUp js-wpfMove"><i class="fa fa-chevron-up"></i></a><a href="#" class="wpfMove wpfMoveDown js-wpfMove"><i class="fa fa-chevron-down"></i></a></div>';
 				$options[] = array(
 					'id' => 'f_sortby_' . $key,

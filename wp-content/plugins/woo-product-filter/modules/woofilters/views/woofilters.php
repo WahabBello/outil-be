@@ -562,7 +562,7 @@ class WoofiltersViewWpf extends ViewWpf {
 
 		$proAttributes  = DispatcherWpf::applyFilters('getProAttributes', '', $settings);
 		$defaultWCQuery = $this->getFilterSetting($settings, 'third_party_prefilter', false, true) ? $this->getModule()->defaultWCQuery : '';
-
+	
 		$html = '<div class="wpfMainWrapper" id="' . $filterId .
 				'" data-viewid="' . $viewId .
 				'" data-filter="' . explode( '_', $viewId )[0] .
@@ -1355,15 +1355,15 @@ class WoofiltersViewWpf extends ViewWpf {
 
 		$showCount    = $this->getFilterSetting($settings, 'f_show_count', false) ? ' wpfShowCount' : '';
 		$hierarchical = $isHierarchical ? 'true' : 'false';
-		$iniqId       = empty($filter['uniqId']) ? '' : $filter['uniqId'];
+		//$iniqId       = empty($filter['uniqId']) ? '' : $filter['uniqId'];
 		$html         =
 			'<div class="wpfFilterWrapper ' . $noActive . $showCount . $preselected . '"' .
 
 				$this->setFitlerId() .
 				$this->setCommonFitlerDataAttr($filter, $filterName, $type) .
 
-				' data-uniq-id="' . $iniqId .
-				'" data-radio="' . ( 'list' === $type ? '1' : '0' ) .
+				//' data-uniq-id="' . $iniqId .
+				' data-radio="' . ( 'list' === $type ? '1' : '0' ) .
 				'" data-query-logic="' . $logic . $notValues .
 				'" data-logic-hierarchical="' . $this->getFilterSetting($settings, 'f_multi_logic_hierarchical', 'any') .
 				'" data-query-children="' . ( $isIncludeChildren  ? '1' : '0' ) .
@@ -3264,7 +3264,8 @@ class WoofiltersViewWpf extends ViewWpf {
 			' data-get-attribute="' . $filterName . '"' .
 			( $displayType ? ' data-display-type="' . $displayType . '"'  : '' ) .
 			( $filterContentType ? ' data-content-type="' . $filterContentType . '"'  : '' ) .
-			( $filterSlug ? ' data-slug="' . $filterSlug . '"' : '' );
+			( $filterSlug ? ' data-slug="' . $filterSlug . '"' : '' ).
+			( empty($filter['uniqId']) ? '' : ' data-uniq-id="' . $filter['uniqId'] . '"' ) ;
 	}
 
 	public function getFilterUrlData( $filterName, $defFilterName = '' ) {

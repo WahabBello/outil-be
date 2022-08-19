@@ -246,4 +246,81 @@ jQuery(document).ready(function(){
 	});
 	// *******  import filters END  *******
 	wpfInitCustomCheckRadio('#'+ tblId+ '_cb');
+	
+	// *******  enable/disable statistics  *******
+	var $statEForm = jQuery('#wpfStatsEForm'),
+		$statDForm = jQuery('#wpfStatsDForm'),
+		$statEWnd = jQuery('#wpfStatsEWnd').dialog({
+		modal:    true,
+		autoOpen: false,
+		width: 500,
+		height: 300,
+		buttons: [
+			{
+				text: $statEForm.attr('data-submit'),
+				click: function() {
+					$statEForm.submit();
+				}
+			}
+		],
+		create:function () {
+			jQuery(this).closest('.ui-dialog').addClass('woobewoo-plugin');
+		}
+	}), $statDWnd = jQuery('#wpfStatsDWnd').dialog({
+		modal:    true,
+		autoOpen: false,
+		width: 500,
+		height: 250,
+		buttons:  [
+			{
+				text: $statDForm.attr('data-submit'),
+				click: function() {
+					$statDForm.submit();
+				}
+			}
+		],
+		create:function () {
+			jQuery(this).closest('.ui-dialog').addClass('woobewoo-plugin');
+		}
+	});
+				
+	tableObj.on('click', '.wpf-statistics', function(e){
+		e.preventDefault();
+		var $this = jQuery(this),
+			id = $this.attr('data-id');
+		if ($this.hasClass('wpf-action-on')) {
+			$statDWnd.dialog('open');
+			$statDWnd.find('input[name="id"]').val(id);
+		} else {
+			$statEWnd.dialog('open');
+			$statEWnd.find('input[name="id"]').val(id);
+		}
+		return false;
+	});
+	jQuery('#wpfStatsEForm, #wpfStatsDForm').on('submit', function (e) {
+		e.preventDefault();
+		var $form = jQuery(this),
+		$submitButton = $form.parents('.ui-dialog:first').find('.ui-dialog-buttonpane .ui-dialog-buttonset').find('button:first');
+		$submitButton.width($submitButton.width());
+		$submitButton.showLoaderWpf();
+		$form.sendFormWpf({
+			btn: $submitButton,
+			data: {mod: 'statistics', action: $form.find('[name="action"]').val(), id: $form.find('[name="id"]').val(), wpfNonce: window.wpfNonce},
+			onSuccess: function(res) {
+				if(!res.error) {
+					var $icon = tableObj.find('.wpf-statistics[data-id="'+$form.find('input[name="id"]').val()+'"]');
+					if ($form.is('#wpfStatsEForm')) {
+						$statEWnd.dialog('close');
+						$icon.addClass('wpf-action-on').removeClass('wpf-action-off');
+					} else {
+						$statDWnd.dialog('close');
+						$icon.addClass('wpf-action-off').removeClass('wpf-action-on');
+					}
+					$submitButton.html($form.attr('data-submit'));
+					$icon.blur();
+				}
+			}
+		});
+		return false;
+	});
 });

@@ -4,7 +4,7 @@ Donate link: https://woobewoo.com/product/woocommerce-filter/
 Tags: product filter, WooCommerce product filter, shop filter, e-commerce filter, WooCommerce filter, product, filter 
 Requires at least: 3.4.0
 Tested up to: 6.0
-Stable tag: 2.1.6
+Stable tag: 2.1.7
  
 Filter products by categories, attributes, prices, and more. 100% Elementor Compatibility. Shoppers easily find products with WooCommerce Product Filter
 
@@ -29,6 +29,9 @@ Video tutorial on how to set up WooCommerce product filter by WooBeWoo
 [youtube https://youtu.be/BdCOCGeUo7A] 
 
 Product filters are the key things that allow your customers to view the products in a particular way and easily find the necessary items.
+
+**[Statistics](https://woobewoo.com/documentation/product-filter-statistics/ "Analytics")**
+Product Filter by WooBeWoo comes with a detailed filter statistics section to make it easier to collect, analyze data and subsequently support global business growth. Gather information about filtering and searching for products by your buyer and convert them into business solutions.
 
 **[Live preview](https://woobewoo.com/documentation/woocommerce-filter-main-settings/ "Main Settings")**
 With Live Preview, the results will appear in the panel right at the moment you make changes to settings.
@@ -142,6 +145,18 @@ If none of this advice helps you, contact us via [support form on our website](h
 You may help us translate the plugin into your language and get the PRO version of the plugin for free as soon as it is released. If this method seems to be too complicated, please send us a request and we will let you know as soon as the WooBeWoo Filter plugin will be available in your localization.
 
 == Changelog ==
+
+= 2.1.7 =
+ * Fixed indexing and displaying 0 value
+ * Fixed indexing acf fields
+ * Fixed buttons filter && autoscroll
+ * Fixed OR logic
+ * Added Statistics
+ * Added loader icon on filter during automatic filter update
+ * Fixed register elementor widget && init session
+ * Removed deprecated jquery functions
+ * Added check isset data for sortby filter
+ * Minor issues fix
 
 = 2.1.6 =
  * Fixed get post per page

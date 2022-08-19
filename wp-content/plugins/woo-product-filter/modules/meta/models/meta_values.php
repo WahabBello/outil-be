@@ -101,8 +101,9 @@ class Meta_ValuesModelWpf extends ModelWpf {
 			$data = $this->setSelectFields($select)->addWhere($where)->getFromTbl();
 		} else {
 			$field = $keys['field'];
-			$query = 'SELECT val_' . $field . ' as id, val_' . $field . ' as value, count(*) as cnt FROM @__meta_data WHERE key_id=' . $keyId . ' GROUP BY val_' . $field;
-			$data = DbWpf::get($query);
+			$where = ( 'int' === $field ) ? ' AND val_int IS NOT NULL' : '';
+			$query = "SELECT val_{$field} as id, val_{$field} as value, count(*) as cnt FROM @__meta_data WHERE key_id={$keyId} {$where} GROUP BY val_{$field}";
+			$data  = DbWpf::get( $query );
 		}
 		$terms = array();
 	

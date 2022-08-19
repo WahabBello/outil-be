@@ -17,7 +17,7 @@ class Woofilters_WidgetWpf extends ModuleWpf {
 	}
 	public function registerElementorWidget() {
 		$this->includeElementorWidgetsFiles();
-		\Elementor\Plugin::instance()->widgets_manager->register_widget_type( new Woofilters_ElementorWidgetWpf() );
+		\Elementor\Plugin::instance()->widgets_manager->register( new Woofilters_ElementorWidgetWpf() );
 	}
 	public function woofiltersElementorEditorScripts() {
 		if ( \Elementor\Plugin::$instance->editor->is_edit_mode() ) {

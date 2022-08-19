@@ -372,7 +372,7 @@
 				<div class="settings-value settings-w100 <?php echo esc_attr( $settingValue ? '' : 'wpfHidden' ); ?>" data-parent="settings[force_theme_templates]" data-parent-switch="settings[force_theme_templates]">
 					<div class="settings-value-label">
 						<?php esc_html_e( 'Recalculate Filters', 'woo-product-filter' ); ?>
-						<i class="fa fa-question woobewoo-tooltip" title="<?php echo esc_attr( __( 'This option recalculates all filters and can be slow if the product base is large', 'woo-product-filter' )); ?>"></i>
+						<i class="fa fa-question woobewoo-tooltip" title="<?php echo esc_attr( __( 'This option recalculates all filters, taking into account third-party filters from other plugins on the page. For example, if the products on the page with the woobewoo filter were already pre-filtered by some third-party plugin filter, as a result of which the counters do not work correctly. But be careful, when the option is enabled, the filter may work slowly if the product base is large.', 'woo-product-filter' )); ?>"></i>
 					</div>
 					<?php
 					HtmlWpf::checkboxToggle( 'settings[recalculate_filters]', array(
@@ -873,7 +873,7 @@
 		<div class="row row-settings-block">
 			<div class="settings-block-label col-xs-4 col-lg-3">
 				<?php esc_html_e('Multiblock Taxonomy Logic', 'woo-product-filter'); ?>
-				<i class="fa fa-question woobewoo-tooltip" title="<?php echo esc_attr(__('Filter products by different filter blocks of categories / tags / attributes by logic and / or.', 'woo-product-filter') . ' <a href="https://woobewoo.com/documentation/content-options/" target="_blank">' . __('Learn More', 'woo-product-filter') . '</a>.'); ?>"></i>
+				<i class="fa fa-question woobewoo-tooltip" title="<?php echo esc_attr(__('Warning! Option uses php sessions! Filter products by different filter blocks of categories / tags / attributes by logic and / or.', 'woo-product-filter') . ' <a href="https://woobewoo.com/documentation/content-options/" target="_blank">' . __('Learn More', 'woo-product-filter') . '</a>.'); ?>"></i>
 			</div>
 			<div class="settings-block-values col-xs-8 col-lg-9">
 				<div class="settings-value settings-w100">

@@ -5,9 +5,31 @@ class OptionsWpf extends ModuleWpf {
 	private $_optionsToCategoires = array();	// For faster search
 
 	public function init() {
+		add_action('init', array($this, 'startSession'), -1);
 		add_action('init', array($this, 'initAllOptValues'), 99);	// It should be init after all languages was inited (frame::connectLang)
 		DispatcherWpf::addFilter('mainAdminTabs', array($this, 'addAdminTab'));
 	}
+
+	public function startSession() {
+		$isMultiLogicOr = false;
+		$filters        = FrameWpf::_()->getModule( 'woofilters' )->getModel()->getFromTbl();
+
+		foreach ( $filters as $filter ) {
+			$filtersSettings = unserialize( $filter['setting_data'] );
+			$multiLogic      = $this->getFilterSetting( $filtersSettings['settings'], 'f_multi_logic', 'and' );
+
+			if ( 'or' === $multiLogic ) {
+				$isMultiLogicOr = true;
+				break;
+			}
+
+		}
+
+		if ( $isMultiLogicOr ) {
+			ReqWpf::startSession();
+		}
+	}
+
 	public function initAllOptValues() {
 		// Just to make sure - that we loaded all default options values
 		$this->getAll();

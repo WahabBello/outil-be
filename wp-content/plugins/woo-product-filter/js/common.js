@@ -56,7 +56,7 @@ jQuery.fn.serializeAnythingWpf = function(addData, returnArray) {
     ,	els = jQuery(this).find(':input').get();
     jQuery.each(els, function() {
     	var filter = jQuery(this).closest('#row-tab-filters'); 
-        if ((typeof(filter) == 'undefined' || filter.length == 0) &&
+        if ((typeof(filter) == 'undefined' || filter.length == 0) && jQuery(this).closest('.wpf-nosave').length == 0 &&
         	 this.name && !this.disabled && (/select|textarea/i.test(this.nodeName) || /checkbox|text|number|hidden|password/i.test(this.type))) {
             var val = jQuery(this).val();
         	if(this.type == 'checkbox' && !this.checked) {
