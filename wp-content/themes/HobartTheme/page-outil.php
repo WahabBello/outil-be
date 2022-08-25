@@ -15,9 +15,10 @@
 get_header();
 ?>
 
-<!-- Differents Function pour les calculs  -->
+<!-- Differents fonction pour les calculs  -->
 <?php
 
+// Arrondir un chiffre decimal comme la fonction excel ARRONDI.SUP() Ex: round_up(12,341, 2) = 12,35 (au lieu de 12,34)
 function round_up($value, $places = 0)
 {
 	if ($places < 0) {
@@ -27,6 +28,7 @@ function round_up($value, $places = 0)
 	return ceil($value * $mult) / $mult;
 }
 
+// Calcul du debit necessaire de la machine soit en metres/min ou en casiers/h
 function calculdebit()
 {
 	global $wpdb;
@@ -47,6 +49,7 @@ function calculdebit()
 	return $resultat;
 }
 
+// Recherche des machines de profi et de premax correspondant au debit calculé dans la fonction précedente calculdebit()
 function referencesMachines()
 {
 	global $wpdb;
@@ -55,13 +58,11 @@ function referencesMachines()
 	$valeur_debit =  calculdebit();
 
 	if ($mesures == 1) {
-		# code...
 		$machines->profiCasiers = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "reference_machine WHERE valeur_mesure<='$valeur_debit->casiers' AND gamme='PROFI' AND type_mesure='CASIERS' ORDER BY valeur_mesure DESC LIMIT 1");
 		$machines->premaxCasiers = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "reference_machine WHERE valeur_mesure<='$valeur_debit->casiers' AND gamme='PREMAX' AND type_mesure='CASIERS' ORDER BY valeur_mesure DESC LIMIT 1");
 		$machines->profi = $machines->profiCasiers;
 		$machines->premax = $machines->premaxCasiers;
 	} else {
-		# code...
 		$machines->profiMetres = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "reference_machine WHERE valeur_mesure<='$valeur_debit->metres' AND gamme='PROFI' AND type_mesure='METRES' ORDER BY valeur_mesure DESC LIMIT 1");
 		$machines->premaxMetres = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "reference_machine WHERE valeur_mesure<='$valeur_debit->metres' AND gamme='PREMAX' AND type_mesure='METRES' ORDER BY valeur_mesure DESC LIMIT 1");
 		$machines->profi = $machines->profiMetres;
@@ -71,6 +72,7 @@ function referencesMachines()
 	return $machines;
 }
 
+// Affichage des machines profi et premax selon son type de mesure et avec ou sans pompe a chaleur dans l'input de selection
 function choixProduit()
 {
 	$produits = new stdClass;
@@ -95,13 +97,11 @@ function choixProduit()
 	return $produits;
 }
 
-
+// Requette pour afficher les données techniques et le prix du produit choisi 
 function dooneesProduit()
 {
 	global $wpdb;
-
 	$produits = new stdClass;
-
 	$profi = choixProduit()->profi ;
 	$premax = choixProduit()->premax ;
 
@@ -111,14 +111,28 @@ function dooneesProduit()
 
 	return $produits;
 }
-// call the function
+
+// Requête pour chercher le lien correspondant au produit exact dans la table wp_posts
+function produitPost()
+{
+	global $wpdb;
+	$produits = new stdClass;
+	$profi = choixProduit()->profi ;
+	$premax = choixProduit()->premax ;
+
+	$produits->profi =  $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "posts WHERE post_title='$profi'");
+	$produits->premax =  $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "posts WHERE post_title='$premax'");
+
+	return $produits;
+}
 
 // echo "<pre>";
 // print_r(calculdebit());
 // print_r(referencesMachines());
 // echo "<pre>";
 ?>
-<!-- <pre> <?= var_dump(dooneesProduit()) ?> </pre> -->
+<!-- <pre> <?= var_dump(choixProduit()) ?> </pre>
+<pre> <?= var_dump(produitPost()) ?> </pre> -->
 
 
 <main id="site-content">
@@ -312,11 +326,11 @@ function dooneesProduit()
 			<div id="calculation-10" class="champ_outil">
 				<div id="prix_profi">
 					<label for="calculation-10-field"> <?= dooneesProduit()->profi[0]->prix ?> </label>
-					<span id="tarif_produit"> </span>
+					<!-- <span id="tarif_produit"> </span> -->
 				</div>
 				<div id="prix_premax">
 					<label for="calculation-10-field"> <?= dooneesProduit()->premax[0]->prix ?> </label>
-					<span id="tarif_produit"> </span>
+					<!-- <span id="tarif_produit"> </span> -->
 				</div>
 			</div>
 			<!-- Le prix -->
@@ -327,8 +341,11 @@ function dooneesProduit()
 				</div>
 			</div>
 			<div class="champ_outil">
-				<div>
-					<h4><a href="http://localhost/wordpress/produit/"><span id="machineChoisie"> <?= choixProduit()->profi ?> </span></a></h4>
+				<div id="produit_profi">
+					<h4><a href="/produit/cn-e2-a-ds-c20"><span id="machineChoisie"> <?= produitPost()->profi[0]->post_title ?> </span></a></h4>
+				</div>
+				<div id="produit_premax">
+					<h4><a href="/produit/cn-e2-a-ds-c20"><span id="machineChoisie"> <?= produitPost()->premax[0]->post_title ?> </span></a></h4>
 				</div>
 			</div>
 			<!-- Je choisis mon plan -->

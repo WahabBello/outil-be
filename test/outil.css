@@ -71,6 +71,6 @@
   margin-bottom: 20px;
 }
 
-#donnes_premax, #prix_premax {
+#donnes_premax, #prix_premax, #produit_premax {
   display: none;
 }
