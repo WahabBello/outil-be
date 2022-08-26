@@ -57,16 +57,18 @@ function referencesMachines()
 	$machines = new stdClass;
 	$valeur_debit =  calculdebit();
 
-	if ($mesures == 1) {
-		$machines->profiCasiers = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "reference_machine WHERE valeur_mesure<='$valeur_debit->casiers' AND gamme='PROFI' AND type_mesure='CASIERS' ORDER BY valeur_mesure DESC LIMIT 1");
-		$machines->premaxCasiers = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "reference_machine WHERE valeur_mesure<='$valeur_debit->casiers' AND gamme='PREMAX' AND type_mesure='CASIERS' ORDER BY valeur_mesure DESC LIMIT 1");
-		$machines->profi = $machines->profiCasiers;
-		$machines->premax = $machines->premaxCasiers;
-	} else {
-		$machines->profiMetres = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "reference_machine WHERE valeur_mesure<='$valeur_debit->metres' AND gamme='PROFI' AND type_mesure='METRES' ORDER BY valeur_mesure DESC LIMIT 1");
-		$machines->premaxMetres = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "reference_machine WHERE valeur_mesure<='$valeur_debit->metres' AND gamme='PREMAX' AND type_mesure='METRES' ORDER BY valeur_mesure DESC LIMIT 1");
-		$machines->profi = $machines->profiMetres;
-		$machines->premax = $machines->premaxMetres;
+	if (isset($_POST['submit'])) {
+		if ($mesures == 1) {
+			$machines->profiCasiers = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "reference_machine WHERE valeur_mesure<='$valeur_debit->casiers' AND gamme='PROFI' AND type_mesure='CASIERS' ORDER BY valeur_mesure DESC LIMIT 1");
+			$machines->premaxCasiers = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "reference_machine WHERE valeur_mesure<='$valeur_debit->casiers' AND gamme='PREMAX' AND type_mesure='CASIERS' ORDER BY valeur_mesure DESC LIMIT 1");
+			$machines->profi = $machines->profiCasiers;
+			$machines->premax = $machines->premaxCasiers;
+		} else {
+			$machines->profiMetres = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "reference_machine WHERE valeur_mesure<='$valeur_debit->metres' AND gamme='PROFI' AND type_mesure='METRES' ORDER BY valeur_mesure DESC LIMIT 1");
+			$machines->premaxMetres = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "reference_machine WHERE valeur_mesure<='$valeur_debit->metres' AND gamme='PREMAX' AND type_mesure='METRES' ORDER BY valeur_mesure DESC LIMIT 1");
+			$machines->profi = $machines->profiMetres;
+			$machines->premax = $machines->premaxMetres;
+		}
 	}
 
 	return $machines;
@@ -102,8 +104,8 @@ function dooneesProduit()
 {
 	global $wpdb;
 	$produits = new stdClass;
-	$profi = choixProduit()->profi ;
-	$premax = choixProduit()->premax ;
+	$profi = choixProduit()->profi;
+	$premax = choixProduit()->premax;
 
 	$produits->profi =  $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "donnees_techniques WHERE reference='$profi'");
 	$produits->premax =  $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "donnees_techniques WHERE reference='$premax'");
@@ -117,8 +119,8 @@ function produitPost()
 {
 	global $wpdb;
 	$produits = new stdClass;
-	$profi = choixProduit()->profi ;
-	$premax = choixProduit()->premax ;
+	$profi = choixProduit()->profi;
+	$premax = choixProduit()->premax;
 
 	$produits->profi =  $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "posts WHERE post_title='$profi'");
 	$produits->premax =  $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "posts WHERE post_title='$premax'");
@@ -131,7 +133,9 @@ function produitPost()
 // print_r(referencesMachines());
 // echo "<pre>";
 ?>
-<!-- <pre> <?= var_dump(choixProduit()) ?> </pre>
+<!-- <pre> <?= var_dump(referencesMachines()) ?> </pre>
+<pre> <?= var_dump(choixProduit()) ?> </pre>
+<pre> <?= var_dump(dooneesProduit()) ?> </pre>
 <pre> <?= var_dump(produitPost()) ?> </pre> -->
 
 
@@ -146,7 +150,7 @@ function produitPost()
 						<h5 class="">Type d'établissement</h5>
 					</div>
 					<div id="select-1" class="champ_outil">
-						<label for="select-1-label">QUEL EST LE TYPE D'ETABLISSEMENT ?</label><select id="select-1" name="typeDetablissement" data-placeholder="" onchange="affichageElement(this.value)">
+						<label for="select-1-label">QUEL EST LE TYPE D'ETABLISSEMENT ?</label><select id="select-1" name="typeDetablissement" onchange="affichageElement(this.value)">
 							<option value=""></option>
 							<option <?= (isset($_POST['typeDetablissement']) && $_POST['typeDetablissement'] === 'HOPITAL-PATIENT') ? 'selected' : ''; ?> id="HOPITAL-PATIENT" value="HOPITAL-PATIENT"> HOPITAL PATIENT </option>
 							<option <?= (isset($_POST['typeDetablissement']) && $_POST['typeDetablissement'] === 'HOPITAL-SELF') ? 'selected' : ''; ?> id="HOPITAL-SELF" value="HOPITAL-SELF"> HOPITAL SELF </option>
@@ -157,7 +161,7 @@ function produitPost()
 						</select>
 					</div>
 					<div id="select-2" class="champ_outil">
-						<label for="select-2-label">QUEL EST LE PLATEAU TYPE</label><select id="plateauType" name="plateauType" data-placeholder="">
+						<label for="select-2-label">QUEL EST LE PLATEAU TYPE</label><select id="plateauType" name="plateauType">
 							<option value="1"></option>
 							<option id="PLATEAU-1" value="2" <?= (isset($_POST['plateauType']) && $_POST['plateauType'] === '2') ? 'selected' : ''; ?>> PLATEAU-1 </option>
 							<option id="PLATEAU-2" value="3" <?= (isset($_POST['plateauType']) && $_POST['plateauType'] === '3') ? 'selected' : ''; ?>> PLATEAU-2 </option>
@@ -168,26 +172,25 @@ function produitPost()
 					</div>
 					<div id="select-3" class="champ_outil">
 						<label for="select-3-label">JE LAVE LES PLATEAUX EN DIFFERE OU SUR UNE MACHINE SPECIFIQUE
-							?</label><select id="plateauxEnDiffere" name="plateauxEnDiffere" data-placeholder="">
+							?</label><select id="plateauxEnDiffere" name="plateauxEnDiffere">
 							<option value="1" <?= (isset($_POST['plateauxEnDiffere']) && $_POST['plateauxEnDiffere'] === '1') ? 'selected' : ''; ?>>NON</option>
 							<option value="2" <?= (isset($_POST['plateauxEnDiffere']) && $_POST['plateauxEnDiffere'] === '2') ? 'selected' : ''; ?>>OUI</option>
 						</select>
 					</div>
 					<div id="select-11" class="champ_outil">
 						<label for="select-11-label">JE LAVE LES VERRES EN DIFFERE OU SUR UNE MACHINE SPECIFIQUE
-							?</label><select id="verresEnDiffere" name="verresEnDiffere" data-placeholder="">
+							?</label><select id="verresEnDiffere" name="verresEnDiffere">
 							<option value="1" <?= (isset($_POST['verresEnDiffere']) && $_POST['verresEnDiffere'] === '1') ? 'selected' : ''; ?>>NON</option>
 							<option value="2" <?= (isset($_POST['verresEnDiffere']) && $_POST['verresEnDiffere'] === '2') ? 'selected' : ''; ?>>OUI</option>
 						</select>
 					</div>
 					<div id="select-12" class="champ_outil">
 						<label for="select-12-label">JE LAVE LES COUVERTS EN DIFFERE OU SUR UNE MACHINE SPECIFIQUE
-							?</label><select id="couvertsEnDiffere" name="couvertsEnDiffere" data-placeholder="">
+							?</label><select id="couvertsEnDiffere" name="couvertsEnDiffere">
 							<option value="1" <?= (isset($_POST['couvertsEnDiffere']) && $_POST['couvertsEnDiffere'] === '1') ? 'selected' : ''; ?>>NON</option>
 							<option value="2" <?= (isset($_POST['couvertsEnDiffere']) && $_POST['couvertsEnDiffere'] === '2') ? 'selected' : ''; ?>>OUI</option>
 						</select>
 					</div>
-					<!-- Type d'établissement -->
 
 					<!-- Determination de la pointe -->
 					<div id="section-2">
@@ -201,7 +204,7 @@ function produitPost()
 						<label for="">DUREE DU SERVICE ?</label><input id="duree" type="number" name="duree" value="<?= $_POST['duree'] ?? '90'; ?>" onchange="calculPointe()" maxlength="4" />
 					</div>
 					<div id="select-6" class="champ_outil">
-						<label for="select-6-label">ESTIMATION DU NOMBRE DE CONVIVES SUR L'HEURE DE POINTE ?</label><select id="nbconvives" name="nbconvives" data-placeholder="" onchange="calculPointe()">
+						<label for="select-6-label">ESTIMATION DU NOMBRE DE CONVIVES SUR L'HEURE DE POINTE ?</label><select id="nbconvives" name="nbconvives" onchange="calculPointe()">
 							<option value="50" <?= (isset($_POST['nbconvives']) && $_POST['nbconvives'] === '50') ? 'selected' : ''; ?>>50%</option>
 							<option value="55" <?= (isset($_POST['nbconvives']) && $_POST['nbconvives'] === '55') ? 'selected' : ''; ?>>55%</option>
 							<option value="60" <?= (isset($_POST['nbconvives']) && $_POST['nbconvives'] === '60') ? 'selected' : ''; ?>>60%</option>
@@ -219,7 +222,6 @@ function produitPost()
 						<label for="calculation-1-field">NOMBRE DE COUVERTS SUR L'HEURE DE POINTE</label>
 						<input name="nbCouvertsSurHeureDePointe" id="nbCouvertsSurHeureDePointe" value="<?= $_POST['nbCouvertsSurHeureDePointe'] ?? '665'; ?>" />
 					</div>
-					<!-- Determination de la pointe -->
 					<!-- Mon type de machine -->
 					<div id="section-3">
 						<h5 class="">Mon type de machine</h5>
@@ -236,11 +238,10 @@ function produitPost()
 							<option value="2" <?= (isset($_POST['pompeAChaleur']) && $_POST['pompeAChaleur'] === '2') ? 'selected' : ''; ?>>Oui</option>
 						</select>
 					</div>
-					<!-- Mon type de machine -->
 
 					<!-- Faire le choix -->
 					<div>
-						<button type="submit" class="validation">
+						<button type="submit" name="submit" class="validation">
 							Valider
 						</button>
 					</div>
@@ -248,14 +249,11 @@ function produitPost()
 		</section>
 
 		<section id="affichage" class="affichage">
-			<!-- Faire le choix -->
 			<div id="section-4">
 				<h5 class="">
 					Le choix entre le mieux ou le meilleur ?
 				</h5>
 			</div>
-			<!-- <pre> <?= var_dump($_GET) ?> </pre>
-			<pre> <?= var_dump($_POST) ?> </pre> -->
 			<!-- table de choix -->
 			<div class="champ_outil">
 				<table class="choix">
@@ -296,24 +294,26 @@ function produitPost()
 					</tr>
 					<tr>
 						<td class="mesures"> <?= ($_POST['type_mesures'] == 1) ? "CAPACITES EN CASIERS PAR HEURE SELON DIN 10510 ET 10534" : "CAPACITES EN METRES PAR MINUTES SELON DIN 10510 ET 10534" ?> </td>
-						<td> <?= referencesMachines()->profi[0]->vitesse2 ?> </td>
+						<td> <?= isset($_POST['submit']) ? referencesMachines()->profi[0]->vitesse2 : '0' ?> </td>
 						<td></td>
-						<td> <?= referencesMachines()->premax[0]->vitesse2 ?> </td>
+						<td> <?= isset($_POST['submit']) ? referencesMachines()->premax[0]->vitesse2 : '0' ?> </td>
 					</tr>
 					<tr>
 						<td class="mesures"> <?= ($_POST['type_mesures'] == 1) ? "LONGUEUR DE LA MACHINE ENTRE TABLES ?" : "LONGUEUR DE LA MACHINE" ?></td>
-						<td> <?= referencesMachines()->profi[0]->longueur_machine ?> </td>
+						<td> <?= isset($_POST['submit']) ? number_format(referencesMachines()->profi[0]->longueur_machine, 0, ',', ' ') : '0' ?> </td>
 						<td class="unite_mesures">(en mm)</td>
-						<td> <?= referencesMachines()->premax[0]->longueur_machine ?> </td>
+						<td> <?= isset($_POST['submit']) ? number_format(referencesMachines()->premax[0]->longueur_machine, 0, ',', ' ') : '0' ?> </td>
 					</tr>
 				</table>
 			</div>
-
 			<!-- table de choix -->
+
 			<div id="selectionMachine" class="champ_outil">
 				<label for="selectionMachine-label"> JE SELECTIONNE LA MACHINE ?</label><select id="selectionMachine" name="selectionMachine" onchange="selectionMachine(this)">
+					<?php if (isset($_POST['submit'])) { ?>
 						<option value="1"> <?= choixProduit()->profi ?> </option>
 						<option value="2"> <?= choixProduit()->premax ?> </option>
+					<?php } ?>
 				</select>
 			</div>
 
@@ -323,17 +323,16 @@ function produitPost()
 					<h5 class="">J'AI MON PRIX ?</h5>
 				</div>
 			</div>
-			<div id="calculation-10" class="champ_outil">
+			<div class="prix_produits champ_outil">
 				<div id="prix_profi">
-					<label for="calculation-10-field"> <?= dooneesProduit()->profi[0]->prix ?> </label>
-					<!-- <span id="tarif_produit"> </span> -->
+					<label for="calculation-10-field"> <?= number_format(dooneesProduit()->profi[0]->prix, 0, ',', ' ') ?> €</label>
 				</div>
 				<div id="prix_premax">
-					<label for="calculation-10-field"> <?= dooneesProduit()->premax[0]->prix ?> </label>
-					<!-- <span id="tarif_produit"> </span> -->
+					<label for="calculation-10-field"> <?= number_format(dooneesProduit()->premax[0]->prix, 0, ',', ' ') ?> €</label>
 				</div>
 			</div>
 			<!-- Le prix -->
+
 			<!-- Je choisis mon plan -->
 			<div id="section-10">
 				<div>
@@ -342,10 +341,10 @@ function produitPost()
 			</div>
 			<div class="champ_outil">
 				<div id="produit_profi">
-					<h4><a href="/produit/cn-e2-a-ds-c20"><span id="machineChoisie"> <?= produitPost()->profi[0]->post_title ?> </span></a></h4>
+					<h4><a href="../produit/<?= produitPost()->profi[0]->post_title ?>"><span id="machineChoisie"> <?= produitPost()->profi[0]->post_title ?> </span></a></h4>
 				</div>
 				<div id="produit_premax">
-					<h4><a href="/produit/cn-e2-a-ds-c20"><span id="machineChoisie"> <?= produitPost()->premax[0]->post_title ?> </span></a></h4>
+					<h4><a href="../produit/<?= produitPost()->premax[0]->post_title ?>"><span id="machineChoisie"> <?= produitPost()->premax[0]->post_title ?> </span></a></h4>
 				</div>
 			</div>
 			<!-- Je choisis mon plan -->
@@ -360,7 +359,7 @@ function produitPost()
 					<table class="donnees_techniques">
 						<tr class="titre_tableau">
 							<td>LONGUEUR MACHINE AVEC TUNNEL DE SECHAGE</td>
-							<td> <?= dooneesProduit()->profi[0]->longueur_machine_ts ?> </td>
+							<td> <?= number_format(dooneesProduit()->profi[0]->longueur_machine_ts, 0, ',', ' ') ?> </td>
 							<td>mm </td>
 						</tr>
 						<tr class="titre_tableau">
@@ -465,7 +464,7 @@ function produitPost()
 						</tr>
 						<tr>
 							<td>CHALEUR LATENTE (kW)</td>
-							<td> <?= dooneesProduit()->profi[0]->chaleur_latente?> </td>
+							<td> <?= dooneesProduit()->profi[0]->chaleur_latente ?> </td>
 							<td>kw</td>
 						</tr>
 						<tr>
@@ -487,7 +486,7 @@ function produitPost()
 					<table class="donnees_techniques">
 						<tr class="titre_tableau">
 							<td>LONGUEUR MACHINE AVEC TUNNEL DE SECHAGE</td>
-							<td> <?= dooneesProduit()->premax[0]->longueur_machine_ts ?> </td>
+							<td> <?= number_format(dooneesProduit()->premax[0]->longueur_machine_ts, 0, ',', ' ') ?> </td>
 							<td>mm </td>
 						</tr>
 						<tr class="titre_tableau">
@@ -592,7 +591,7 @@ function produitPost()
 						</tr>
 						<tr>
 							<td>CHALEUR LATENTE (kW)</td>
-							<td> <?= dooneesProduit()->premax[0]->chaleur_latente?> </td>
+							<td> <?= dooneesProduit()->premax[0]->chaleur_latente ?> </td>
 							<td>kw</td>
 						</tr>
 						<tr>
